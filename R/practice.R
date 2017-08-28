@@ -18,11 +18,12 @@
 #' @param focus A number between 0 amd 1. Low numbers means less well known
 #'   cards will be practiced, whereas higher number means more well known cards
 #'   will be practiced.
+#' @param max_tests The number of cards to present.
 #'
 #' @export
 practice <- function(decks = NULL, library = "deck_library",
                      history = "history.tsv", tests = NULL,
-                     update_history = TRUE, focus = 0.5) {
+                     update_history = TRUE, focus = 0.5, max_tests = 10) {
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library)
@@ -32,20 +33,32 @@ practice <- function(decks = NULL, library = "deck_library",
 
   # Main loop
   done = FALSE
+  cards_tested <- 0
+  all_changes <- NULL
   while (! done) {
     # Pick a fact to test
     card <- pick_card(deck = deck_data, history = history_data, focus = focus)
 
-    # Pick a test to use
-    test <- pick_test(deck = deck_data, card = card)
-
     # Present a test
-    present_test(deck = deck_data, history = history_data, tests = tests)
+    test_results <- present_test(card = card, deck = deck_data, tests = tests)
 
     # Update the history
-  }
+    history_data <- update_history(changes = test_results, history = history_data)
+    all_changes <- rbind(all_changes, test_results)
 
+    # Save history
+    save_history(history = history_data, path = history)
+
+    # Update count
+    cards_tested <- cards_tested + 1
+
+    # Check if the session is done
+    if (cards_tested >= max_tests) {
+      done <- TRUE
+    }
+  }
 }
+
 
 #' Checks if decks folders are formatted right
 #'
@@ -118,6 +131,7 @@ check_deck_format <- function(decks, complain = TRUE) {
   return(invisible(result))
 }
 
+
 #' Load one or more decks
 #'
 #' Load one or more decks
@@ -128,11 +142,13 @@ check_deck_format <- function(decks, complain = TRUE) {
 #'   their decks and practice history. By default, this is a directory called
 #'   "deck_library" in the current working directory. If \code{NULL}, it will be
 #'   the current working directory.
+#' @param add_hash If \code{TRUE}, add "front_hash" and "back_hash" columns
+#'   containing the md5 hash of the contents of the cards.
 #'
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_decks <- function(decks, library) {
+load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
   # Check that library can be found
   if (is.null(library)) {
     library <- getwd()
@@ -149,7 +165,7 @@ load_decks <- function(decks, library) {
     decks <- list.dirs(library, recursive = FALSE)
     decks <- decks[is_deck(decks, complain = FALSE)]
     message(paste0('Using the following decks:\n',
-                   limited_print(prefix = "  ", paths[! decks], type = "silent")))
+                   limited_print(prefix = "  ", basename(decks), type = "silent")))
   } else {
     decks <- decks[is_deck(decks, complain = TRUE)]
     if (length(decks) == 0) {
@@ -159,14 +175,40 @@ load_decks <- function(decks, library) {
 
   # Load and combine the decks used
   deck_tsv_paths <- file.path(decks, "deck.tsv")
-  deck_data <- lapply(deck_tsv_paths, read.table, header = TRUE, sep = "\t")
+  deck_data <- lapply(deck_tsv_paths, read.table, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
   deck_data <- deck_data[check_deck_format(deck_data, complain = TRUE)]
-  if (length(decks) == 0) {
+  if (length(deck_data) == 0) {
     stop("No valid decks supplied.")
   }
 
-  # Combine and return
-  do.call(rbind, deck_data)
+  # Combine into a single table
+  deck_data <- lapply(seq_len(length(deck_data)), function(i) {
+    deck_data[[i]]$deck_path <- decks[i]
+    return(deck_data[[i]])
+  })
+  result <- do.call(rbind, deck_data)
+
+  # Remove any incomplete cards
+  incomplete <- result$front == "" | result$back == "" | is.na(result$front) | is.na(result$back)
+  if (sum(incomplete) > 0) {
+    warning(paste0("There were ", sum(incomplete),
+                   " incomplete cards found in the given decks. These will not be used."),
+            call. = FALSE)
+    result <- result[! incomplete, ]
+  }
+
+  # Check that there are cards in the deck
+  if (nrow(result) == 0) {
+    stop("Could not find any valid cards.")
+  }
+
+  # Add card content hashes
+  if (add_hash) {
+    result$front_hash <- card_hash(result$front)
+    result$back_hash <- card_hash(result$back)
+  }
+
+  return(result)
 }
 
 
@@ -187,7 +229,7 @@ load_history <- function(history, complain = TRUE) {
   required_cols <- c("front_hash", "back_hash", "right", "wrong", "updated")
 
   # Check file can be found
-  if (! file.exists(history)) {
+  if (is.null(history) || ! file.exists(history)) {
     if (complain) {
       warning(paste0('Can not find the users history file:\n  "', history, '"'))
     }
@@ -209,4 +251,99 @@ load_history <- function(history, complain = TRUE) {
   }
 
   return(result)
+}
+
+
+#' Pick a card to practice
+#'
+#' Pick a card to practice based on a user's practice history.
+#'
+#' @param deck A table containing deck information.
+#' @param history A table containing a users practice history.
+#' @param focus A number between 0 amd 1. Low numbers means less well known
+#'   cards will be practiced, whereas higher number means more well known cards
+#'   will be practiced.
+#'
+#' @return The row index in the deck of the card to practice
+#'
+#' @keywords internal
+pick_card <- function(deck, history, focus = 0.5) {
+  # Apply users history to deck
+  deck$right <- 0
+  deck$wrong <- 0
+  for (i in seq_len(nrow(history))) {
+    matching <- deck$front_hash == history$front_hash[i] & deck$back_hash == history$back_hash[i]
+    deck[matching, "right"] <- history$right[i]
+    deck[matching, "wrong"] <- history$wrong[i]
+  }
+
+  # Pick a card
+  score <- vapply(seq_len(nrow(deck)), FUN.VALUE = numeric(1), function(i) {
+    rbeta(n = 1, shape1 = deck$right + 1, shape2 = deck$wrong + 1)
+  })
+  score_diff <- abs(score - focus)
+  result <- which.min(score_diff)
+
+  return(result)
+}
+
+
+#' Calculate a hash of a card
+#'
+#' Calculate a hash of the contents of a card.
+#'
+#' @param content The content of either the front or the back of one or more cards.
+#'
+#' @return A hash string
+#'
+#' @keywords internal
+card_hash <- function(content) {
+  vapply(content, FUN.VALUE = character(1), function(x) {
+    if (file.exists(x)) {
+      result <- digest::digest(file = x)
+    } else {
+      result <- digest::digest(object = x)
+    }
+    return(result)
+  })
+}
+
+#' Present a test for a card
+#'
+#' Pick a test ad present it to the user for a given card
+#'
+#' @param card The index of a card in "deck"
+#' @param deck The data.frame containing the deck information
+#' @param tests The name of tests to try to use
+#'
+#' @return The changes in scores resulting from the test
+#'
+#' @keywords internal
+present_test <- function(card, deck, tests = test_names()) {
+  deck_path <- deck$deck_path[card]
+  # deck_settings <- get_deck_settings(deck_path)
+
+  successful_test <- FALSE
+  test_result <- NULL
+  while(! successful_test) {
+    # Choose a test
+    if (length(test) == 0) {
+      stop("No applicable tests found.")
+    }
+    test_name <- tests[sample(seq_len(length(tests)), size = 1)]
+    tests <- tests[tests != test_name] # Dont try the same test twice
+    test_to_try <- available_tests()[[test_name]]
+
+    # Present a test
+    # test_args <- c(list("card" = card, "deck" = deck), test_settings)
+    test_args <- list("card" = card, "deck" = deck)
+    test_result <- do.call(test_to_try, test_args)
+
+    # Check if the test worked
+    if (! is.na(test_result)) {
+      successful_test <- TRUE
+    }
+  }
+
+  return(test_result)
 }
