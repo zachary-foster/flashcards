@@ -6,11 +6,14 @@
 #'   By default, all decks in "library" are used.
 #' @param library The path to the deck library. This is where the user stores
 #'   their decks and practice history. By default, this is a directory called
-#'   "deck_library" in the current working directory. If \code{NULL}, it will be
+#'   "decks" in the current working directory. If \code{NULL}, it will be
 #'   the current working directory.
+#' @param progress The file used to store a user's progress for one or
+#'   more decks. By default, this is a file called "progress.tsv" in the current
+#'   user's library.
 #' @param history The file used to store a user's practice history for one or
-#'   more decks. By default, this is a file called "history.csv" in the current
-#'   working directory.
+#'   more decks. By default, this is a file called "history.tsv" in the current
+#'   user's library.
 #' @param tests The names of test types to use in this practice session. By
 #'   default, the practice types specified by the decks are used.
 #' @param update_history If \code{TRUE}, update the user's practice history with
@@ -21,15 +24,16 @@
 #' @param max_tests The number of cards to present.
 #'
 #' @export
-practice <- function(decks = NULL, library = "deck_library",
-                     history = "history.tsv", tests = NULL,
-                     update_history = TRUE, focus = 0.5, max_tests = 10) {
+practice <- function(decks = NULL, progress = "progress.tsv",
+                     library = "decks", history = "history.tsv",
+                     tests = NULL, update_history = TRUE, focus = 0.5,
+                     max_tests = 10) {
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library)
 
-  # Load the history
-  history_data <- load_history(history = history, complain = TRUE)
+  # Load the progress
+  progress_data <- load_progress(progress = progress, complain = TRUE)
 
   # Main loop
   done = FALSE
@@ -37,17 +41,17 @@ practice <- function(decks = NULL, library = "deck_library",
   all_changes <- NULL
   while (! done) {
     # Pick a fact to test
-    card <- pick_card(deck = deck_data, history = history_data, focus = focus)
+    card <- pick_card(deck = deck_data, progress = progress_data, focus = focus)
 
     # Present a test
     test_results <- present_test(card = card, deck = deck_data, tests = tests)
 
-    # Update the history
-    history_data <- update_history(changes = test_results, history = history_data)
+    # Update the progress
+    progress_data <- update_progress(changes = test_results, progress = progress_data)
     all_changes <- rbind(all_changes, test_results)
 
-    # Save history
-    save_history(history = history_data, path = history)
+    # Save progress
+    save_progress(progress = progress_data, path = progress)
 
     # Update count
     cards_tested <- cards_tested + 1
@@ -154,9 +158,9 @@ load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
     library <- getwd()
   } else {
     if (! file.exists(library)) {
-      stop(paste0('The deck library "', library, '" does not exist.'))
+      stop(paste0('The deck library "', library, '" does not exist.'), call. = FALSE)
     } else if (! file.info(library)$isdir) {
-      stop(paste0('The deck library "', library, '" must be a folder.'))
+      stop(paste0('The deck library "', library, '" must be a folder.'), call. = FALSE)
     }
   }
 
@@ -169,7 +173,7 @@ load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
   } else {
     decks <- decks[is_deck(decks, complain = TRUE)]
     if (length(decks) == 0) {
-      stop("No valid decks supplied.")
+      stop("No valid decks supplied.", call. = FALSE)
     }
   }
 
@@ -212,12 +216,12 @@ load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
 }
 
 
-#' Load practice history
+#' Load practice progress
 #'
-#' Load practice history
+#' Load practice progress
 #'
-#' @param history The file used to store a user's practice history for one or
-#'   more decks. By default, this is a file called "history.csv" in the current
+#' @param progress The file used to store a user's practice progress for one or
+#'   more decks. By default, this is a file called "progress.csv" in the current
 #'   working directory.
 #' @param complain If \code{TRUE}, issue warnings for any paths that do not
 #'   point to valid decks.
@@ -225,13 +229,13 @@ load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_history <- function(history, complain = TRUE) {
+load_progress <- function(progress, complain = TRUE) {
   required_cols <- c("front_hash", "back_hash", "right", "wrong", "updated")
 
   # Check file can be found
-  if (is.null(history) || ! file.exists(history)) {
+  if (is.null(progress) || ! file.exists(progress)) {
     if (complain) {
-      warning(paste0('Can not find the users history file:\n  "', history, '"'))
+      warning(paste0('Can not find the users progress file:\n  "', progress, '"'))
     }
     result <- matrix(nrow = 0, ncol = length(required_cols))
     colnames(result) <- required_cols
@@ -239,12 +243,12 @@ load_history <- function(history, complain = TRUE) {
   }
 
   # Load file
-  result <- read.table(file = history, header = TRUE, sep = "\t")
+  result <- read.table(file = progress, header = TRUE, sep = "\t")
 
   # Check that the table is formatted correctly
   if (any(! required_cols %in% colnames(result))) {
-    warning(paste0('The following file is not a correctly formatted user history: "',
-                   history, '"\n',
+    warning(paste0('The following file is not a correctly formatted user progress: "',
+                   progress, '"\n',
                    'User histories must have the folllowing columns:\n',
                    limited_print(prefix = "  ", required_cols, type = "silent")),
             call. = FALSE)
@@ -256,10 +260,10 @@ load_history <- function(history, complain = TRUE) {
 
 #' Pick a card to practice
 #'
-#' Pick a card to practice based on a user's practice history.
+#' Pick a card to practice based on a user's practice progress.
 #'
 #' @param deck A table containing deck information.
-#' @param history A table containing a users practice history.
+#' @param progress A table containing a users practice progress.
 #' @param focus A number between 0 amd 1. Low numbers means less well known
 #'   cards will be practiced, whereas higher number means more well known cards
 #'   will be practiced.
@@ -267,14 +271,14 @@ load_history <- function(history, complain = TRUE) {
 #' @return The row index in the deck of the card to practice
 #'
 #' @keywords internal
-pick_card <- function(deck, history, focus = 0.5) {
-  # Apply users history to deck
+pick_card <- function(deck, progress, focus = 0.5) {
+  # Apply users progress to deck
   deck$right <- 0
   deck$wrong <- 0
-  for (i in seq_len(nrow(history))) {
-    matching <- deck$front_hash == history$front_hash[i] & deck$back_hash == history$back_hash[i]
-    deck[matching, "right"] <- history$right[i]
-    deck[matching, "wrong"] <- history$wrong[i]
+  for (i in seq_len(nrow(progress))) {
+    matching <- deck$front_hash == progress$front_hash[i] & deck$back_hash == progress$back_hash[i]
+    deck[matching, "right"] <- progress$right[i]
+    deck[matching, "wrong"] <- progress$wrong[i]
   }
 
   # Pick a card
@@ -307,6 +311,7 @@ card_hash <- function(content) {
     return(result)
   })
 }
+
 
 #' Present a test for a card
 #'
@@ -346,4 +351,24 @@ present_test <- function(card, deck, tests = test_names()) {
   }
 
   return(test_result)
+}
+
+
+#' Get standard progress columns
+#'
+#' Get standard progress columns
+#'
+#' @keywords internal
+progress_cols <- function() {
+  c("front_hash", "back_hash", "right", "wrong", "updated")
+}
+
+
+#' Get standard history columns
+#'
+#' Get standard history columns
+#'
+#' @keywords internal
+history_cols <- function() {
+  c("front_hash", "back_hash", "right", "wrong", "updated", "deck_name", "test_name")
 }

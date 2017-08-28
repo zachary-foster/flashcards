@@ -52,6 +52,15 @@ test_review <- function(card, deck) {
     count <- count + 1
   }
 
+  # Return results
+  data.frame(front_hash = deck$front_hash[card],
+             back_hash = deck$back_hash[card],
+             right = 0.1,
+             wrong = 0,
+             updated = date(),
+             deck_name = basename(deck_path),
+             test_name = "review")
+
 }
 
 
