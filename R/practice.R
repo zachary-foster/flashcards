@@ -2,18 +2,25 @@
 #'
 #' Start practicing one or more decks.
 #'
+#' @param home The path to the folder containing the deck library, progress
+#'   file, and history file. If the folder was created using
+#'   \code{\link{init_home_dir}}, this is the only argument needed. By default,
+#'   this is the current working directory.
 #' @param decks The names or folder paths of one or more decks to practice on.
-#'   By default, all decks in "library" are used.
+#'   If "library" is supplied, then these paths are relative to it. By default,
+#'   all decks in "library" are used.
 #' @param library The path to the deck library. This is where the user stores
 #'   their decks and practice history. By default, this is a directory called
-#'   "decks" in the current working directory. If \code{NULL}, it will be
-#'   the current working directory.
-#' @param progress The file used to store a user's progress for one or
-#'   more decks. By default, this is a file called "progress.tsv" in the current
-#'   user's library.
+#'   "decks" in the "home" folder.  If "home" is supplied, then this paths is
+#'   relative to it.
+#' @param progress The file used to store a user's progress for one or more
+#'   decks. By default, this is a file called "progress.tsv".  If "home" is
+#'   supplied, then this paths is relative to it. If \code{NULL}, no progress
+#'   file is used.
 #' @param history The file used to store a user's practice history for one or
-#'   more decks. By default, this is a file called "history.tsv" in the current
-#'   user's library.
+#'   more decks. By default, this is a file called "history.tsv".  If "home" is
+#'   supplied, then this paths is relative to it. If \code{NULL}, no history
+#'   file is used.
 #' @param tests The names of test types to use in this practice session. By
 #'   default, the practice types specified by the decks are used.
 #' @param update_history If \code{TRUE}, update the user's practice history with
@@ -24,13 +31,13 @@
 #' @param max_tests The number of cards to present.
 #'
 #' @export
-practice <- function(decks = NULL, progress = "progress.tsv",
+practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
                      library = "decks", history = "history.tsv",
                      tests = NULL, update_history = TRUE, focus = 0.5,
                      max_tests = 10) {
 
   # Load decks
-  deck_data <- load_decks(decks = decks, library = library)
+  deck_data <- load_decks(decks = decks, library = library, home = home)
 
   # Load the progress
   progress_data <- load_progress(progress = progress, complain = TRUE)
@@ -152,17 +159,35 @@ check_deck_format <- function(decks, complain = TRUE) {
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
-  # Check that library can be found
-  if (is.null(library)) {
-    library <- getwd()
-  } else {
+load_decks <- function(decks, library, home, add_hash = TRUE) {
+  # Check that either decks or library are specified
+  if (is.null(decks) && is.null(library)) {
+    stop('Either "decks" or "library" must be specified.')
+  }
+
+  # Check that home exists and is a directory
+  if (! is.null(home)) {
+    if (! file.exists(home)) {
+      stop(paste0('The users home directory "', home, '" does not exist.'), call. = FALSE)
+    } else if (! file.info(home)$isdir) {
+      stop(paste0('The users home directory "', home, '" must be a folder.'), call. = FALSE)
+    }
+  }
+
+  # Append home to library if supplied
+  if (!is.null(home) && !is.null(library) && !R.utils::isAbsolutePath(library)) {
+    library <- file.path(home, library)
+  }
+
+  # Check that library exists and is a directory
+  if (! is.null(library)) {
     if (! file.exists(library)) {
       stop(paste0('The deck library "', library, '" does not exist.'), call. = FALSE)
     } else if (! file.info(library)$isdir) {
       stop(paste0('The deck library "', library, '" must be a folder.'), call. = FALSE)
     }
   }
+
 
   # Get deck list
   if (is.null(decks)) {
@@ -171,6 +196,10 @@ load_decks <- function(decks = NULL, library = NULL, add_hash = TRUE) {
     message(paste0('Using the following decks:\n',
                    limited_print(prefix = "  ", basename(decks), type = "silent")))
   } else {
+    if (!is.null(library)) {
+      decks <- ifelse(R.utils::isAbsolutePath(decks),
+                      decks, file.path(library, decks))
+    }
     decks <- decks[is_deck(decks, complain = TRUE)]
     if (length(decks) == 0) {
       stop("No valid decks supplied.", call. = FALSE)

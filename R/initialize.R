@@ -1,15 +1,15 @@
-#' Create a deck library
+#' Create a users home directory
 #'
-#' Create a deck library. A user would generally have a single deck library and
-#' add decks to it. This function creates a new deck library with an example
-#' deck.
+#' Create a home directory with a deck library, history file, and progress file.
+#' A user would generally have a single deck library and add decks to it. This
+#' function creates a new deck library with an example deck to get started.
 #'
 #' @param path The name/location of the deck library folder.
 #'
 #' @return NULL
 #'
 #' @export
-init_deck_library <- function(path) {
+init_home_dir <- function(path) {
   # Make directory
   if (file.exists(path)) {
     stop(paste0('A file/folder already exists at "', path, '"'))
