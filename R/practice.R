@@ -33,14 +33,15 @@
 #' @export
 practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
                      library = "decks", history = "history.tsv",
-                     tests = NULL, update_history = TRUE, focus = 0.5,
+                     tests = test_names(), update_history = TRUE, focus = 0.5,
                      max_tests = 10) {
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library, home = home)
 
   # Load the progress
-  progress_data <- load_progress(progress = progress, complain = TRUE)
+  progress <- get_project_file(progress, home = home)
+  progress_data <- load_progress(progress = progress, home = home, complain = TRUE)
 
   # Main loop
   done = FALSE
@@ -258,7 +259,7 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_progress <- function(progress, complain = TRUE) {
+load_progress <- function(progress, home = NULL, complain = TRUE) {
   required_cols <- c("front_hash", "back_hash", "right", "wrong", "updated")
 
   # Check file can be found
@@ -361,7 +362,7 @@ present_test <- function(card, deck, tests = test_names()) {
   test_result <- NULL
   while(! successful_test) {
     # Choose a test
-    if (length(test) == 0) {
+    if (length(tests) == 0) {
       stop("No applicable tests found.")
     }
     test_name <- tests[sample(seq_len(length(tests)), size = 1)]
@@ -400,4 +401,59 @@ progress_cols <- function() {
 #' @keywords internal
 history_cols <- function() {
   c("front_hash", "back_hash", "right", "wrong", "updated", "deck_name", "test_name")
+}
+
+#' Get the path to a project file
+#'
+#' Get a file that might be a absolute path, in the current working directory, or in the home directory.
+#'
+#' @param file_path File to find.
+#' @param home The path to the folder containing the deck library, progress
+#'   file, and history file.
+#'
+#' @return vector
+#' @keywords internal
+get_project_file <- function(file_path, home = home) {
+  # Append home to library if supplied
+  if (!is.null(home) && !is.null(file_path) && !R.utils::isAbsolutePath(file_path)) {
+    file_path <- file.path(home, file_path)
+  }
+  return(file_path)
+}
+
+
+#' Apply changes to the progress record
+#'
+#' Apply changes to the progress record
+#'
+#' @param changes A table containing the results of a practice session
+#' @param progress The current progress table
+#'
+#' @return data.frame
+#' @keywords internal
+update_progress <- function(changes, progress) {
+  # Add new rows to progress for first occurances of cards
+  match_index <- match(paste(changes$front_hash, changes$back_hash),
+                       paste(progress$front_hash, progress$back_hash))
+  progress <- rbind(progress, changes[is.na(match_index), ])
+
+  # Update cards practiced in the past
+  match_index <- match_index[!is.na(match_index)]
+  progress[match_index, "right"] <- progress[match_index, "right"] + changes$right
+  progress[match_index, "wrong"] <- progress[match_index, "wrong"] + changes$wrong
+
+  return(progress)
+}
+
+
+#' Save the progress file
+#'
+#' Save the progress file
+#'
+#' @param progress The current progress table
+#' @param path Where to save the file
+#'
+#' @keywords internal
+save_progress <- function(progress, path) {
+  write.table(progress, file = path, sep = "\t", quote = FALSE)
 }

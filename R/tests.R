@@ -32,11 +32,11 @@ test_review <- function(card, deck) {
     if (file.exists(img_path)) {
       plot(magick::image_read(img_path))
     } else {
-      print(ggplot(data = data.frame(label = content)) +
-              geom_fit_text(label = content, xmin = 0, xmax = 1, ymin = 0, ymax = 1, grow = TRUE) +
-              xlim(0, 1) +
-              ylim(0, 1) +
-              theme_void())
+      print(ggplot2::ggplot(data = data.frame(label = content)) +
+              ggfittext::geom_fit_text(label = content, xmin = 0, xmax = 1, ymin = 0, ymax = 1, grow = TRUE) +
+              ggplot2::xlim(0, 1) +
+              ggplot2::ylim(0, 1) +
+              ggplot2::theme_void())
     }
   }
 
