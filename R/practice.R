@@ -34,7 +34,7 @@
 practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
                      library = "decks", history = "history.tsv",
                      tests = test_names(), update_history = TRUE, focus = 0.5,
-                     max_tests = 10) {
+                     max_tests = 20) {
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library, home = home)
@@ -124,7 +124,7 @@ is_deck <- function(paths, complain = TRUE) {
 #'
 #' @keywords internal
 check_deck_format <- function(decks, complain = TRUE) {
-  required_cols <- c("front",	"back",	"difficulty",	"source")
+  required_cols <- c("front",	"back",	"source")
 
   # Check the deck paths
   result <- vapply(decks, FUN.VALUE = logical(1), function(deck) {

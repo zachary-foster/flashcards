@@ -2,11 +2,16 @@
 % Please edit documentation in R/tests.R
 \name{test_review}
 \alias{test_review}
-\title{test under construction}
+\title{Review a card}
 \usage{
 test_review(card, deck)
 }
+\arguments{
+\item{card}{The index of the card to use}
+
+\item{deck}{The table containing the deck information.}
+}
 \description{
-test under construction
+Review a card by flipping it over until moving to the next test.
 }
 \keyword{internal}

@@ -72,3 +72,16 @@ limited_print <- function(chars, prefix = "",
   }
   return(invisible(output))
 }
+
+
+#' Print something
+#'
+#' The standard print function for this package. This is a wrapper to make
+#' package-wide changes easier.
+#'
+#' @param text Something to print
+#'
+#' @keywords internal
+my_print <- function(text) {
+  message(text)
+}

@@ -2,11 +2,19 @@
 % Please edit documentation in R/tests.R
 \name{test_choose}
 \alias{test_choose}
-\title{test under construction}
+\title{Multiple choice test}
 \usage{
-test_choose()
+test_choose(card, deck, max_choices = 4)
+}
+\arguments{
+\item{card}{The index of the card to use}
+
+\item{deck}{The table containing the deck information.}
+
+\item{max_choices}{The maximum number of cards to show.}
 }
 \description{
-test under construction
+Display one side of multiple cards and ask which matches the other side of
+another card shown.
 }
 \keyword{internal}

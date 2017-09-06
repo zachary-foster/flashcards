@@ -6,7 +6,7 @@
 \usage{
 practice(home = getwd(), decks = NULL, progress = "progress.tsv",
   library = "decks", history = "history.tsv", tests = test_names(),
-  update_history = TRUE, focus = 0.5, max_tests = 10)
+  update_history = TRUE, focus = 0.5, max_tests = 20)
 }
 \arguments{
 \item{home}{The path to the folder containing the deck library, progress
