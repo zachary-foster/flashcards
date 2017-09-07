@@ -4,7 +4,7 @@
 \alias{test_choose}
 \title{Multiple choice test}
 \usage{
-test_choose(card, deck, max_choices = 4)
+test_choose(card, deck, max_choices = 4, pick_multiple = TRUE)
 }
 \arguments{
 \item{card}{The index of the card to use}
@@ -12,6 +12,8 @@ test_choose(card, deck, max_choices = 4)
 \item{deck}{The table containing the deck information.}
 
 \item{max_choices}{The maximum number of cards to show.}
+
+\item{pick_multiple}{If \code{TRUE}, allow multiple correct answers}
 }
 \description{
 Display one side of multiple cards and ask which matches the other side of

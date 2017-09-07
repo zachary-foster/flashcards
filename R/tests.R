@@ -60,9 +60,10 @@ test_review <- function(card, deck) {
 #' @param card The index of the card to use
 #' @param deck The table containing the deck information.
 #' @param max_choices The maximum number of cards to show.
+#' @param pick_multiple If \code{TRUE}, allow multiple correct answers
 #'
 #' @keywords internal
-test_choose <- function(card, deck, max_choices = 4) {
+test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
   # Pick side and card to test
   side_index <- sample.int(2, 1)
   key_side <- deck[[c("front", "back")[side_index]]]
@@ -130,10 +131,20 @@ test_choose <- function(card, deck, max_choices = 4) {
 #'
 #' @keywords internal
 plot_image <- function(path) {
-  plot(magick::image_read(path))
-  my_plot <- recordPlot()
-  plot.new() ## clean up device
-  return(my_plot)
+  if (endsWith(tolower(path), "png")) {
+    image <- png::readPNG(path)
+  } else if (endsWith(tolower(path), "jpg") || endsWith(tolower(path), "jpeg")) {
+    image <- jpeg::readJPEG(path)
+  } else {
+    stop(paste0('Not an accepted file format: "', path, '".'))
+  }
+  y_max <- dim(image)[1] / dim(image)[2]
+  ggplot2::ggplot() +
+    ggplot2::annotation_raster(image, ymin = 0, xmin = 0, xmax = 1, ymax = y_max) +
+    ggplot2::ylim(0, y_max) +
+    ggplot2::xlim(0, 1) +
+    ggplot2::coord_fixed() +
+    ggplot2::theme_void()
 }
 
 
@@ -146,7 +157,7 @@ plot_image <- function(path) {
 #' @keywords internal
 plot_text <- function(text) {
   ggplot2::ggplot(data = data.frame(label = text)) +
-    ggfittext::geom_fit_text(label = text, xmin = 0, xmax = 1, ymin = 0, ymax = 1, grow = TRUE) +
+    ggfittext::geom_fit_text(label = text, xmin = 0, xmax = 1, ymin = 0, ymax = 1, grow = TRUE, reflow = TRUE) +
     ggplot2::xlim(0, 1) +
     ggplot2::ylim(0, 1) +
     ggplot2::theme_void()
