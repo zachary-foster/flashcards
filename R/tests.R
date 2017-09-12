@@ -101,9 +101,10 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     my_print("Enter the numbers that apply to the card on top, separated by commas:")
     input = ""
     count = 0
-    while (! input %in% seq_along(test_cards)) {
+    while (length(input) == 0 || ! all(input %in% seq_along(test_cards))) {
       if (count != 0) {
-        my_print("Invalid input. Must be a number between 1 and ", length(test_cards), ".")
+        my_print("Invalid input. Must be one or more numbes between 1 and ", length(test_cards), " separated by commas.")
+
       }
       input <- readline()
       count <- count + 1
@@ -113,9 +114,9 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     my_print("Enter the number that applies to the card on top:")
     input = ""
     count = 0
-    while (length(input) ==0 || ! all(input %in% seq_along(test_cards))) {
+    while (length(input) != 1 || ! input %in% seq_along(test_cards)) {
       if (count != 0) {
-        my_print("Invalid input. Must be one or more numbes between 1 and ", length(test_cards), " separated by commas.")
+        my_print("Invalid input. Must be a number between 1 and ", length(test_cards), ".")
       }
       input <- strsplit(readline(), ", *")[[1]]
       count <- count + 1
@@ -167,6 +168,15 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     my_print(paste0(input[! is_right], collapse = " and "), " are WRONG!")
   } else if (sum(! is_right) > 2) {
     my_print(paste0(input[! is_right], collapse = ", "), " are WRONG!")
+  }
+
+  # Play sound
+  if (all(is_right)) {
+    play_sound("correct.wav")
+  } else if (all(!is_right)) {
+    play_sound("wrong.wav")
+  } else {
+    play_sound("partial.wav")
   }
 
 
