@@ -58,9 +58,9 @@ limited_print <- function(chars, prefix = "",
   output <- paste(prefix, output, collapse = "")
 
   if (type == "error") {
-    stop(output)
+    stop(output, call. = FALSE)
   } else if (type == "warning") {
-    warning(output)
+    warning(output, call. = FALSE, immediate. = TRUE)
   } else if (type == "message") {
     message(output)
   } else if (type == "cat") {

@@ -41,6 +41,7 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
 
   # Load the progress
   progress <- get_project_file(progress, home = home)
+  history <-  get_project_file(history, home = home)
   progress_data <- load_progress(progress = progress, home = home, complain = TRUE)
 
   # Main loop
@@ -53,6 +54,7 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
 
     # Present a test
     test_results <- present_test(card = card, deck = deck_data, tests = tests)
+    dev.off() # clear plot
 
     # Update the progress
     progress_data <- update_progress(changes = test_results, progress = progress_data)
@@ -60,6 +62,9 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
 
     # Save progress
     save_progress(progress = progress_data, path = progress)
+
+    # Save history
+    save_history(changes = test_results, history_path = history)
 
     # Update count
     cards_tested <- cards_tested + 1
@@ -69,6 +74,9 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
       done <- TRUE
     }
   }
+
+  # Report results
+  my_print("Practice complete!")
 }
 
 
@@ -105,7 +113,7 @@ is_deck <- function(paths, complain = TRUE) {
                    limited_print(prefix = "  ", paths[! result], type = "silent"), "\n",
                    'Decks must be folders with the following files:\n',
                    limited_print(prefix = "  ", required_files, type = "silent")),
-            call. = FALSE)
+            call. = FALSE, immediate. = TRUE)
   }
 
   return(result)
@@ -137,7 +145,7 @@ check_deck_format <- function(decks, complain = TRUE) {
                    limited_print(prefix = "  ", names(decks)[! result], type = "silent"), "\n",
                    'Decks must have the folllowing columns:\n',
                    limited_print(prefix = "  ", required_cols, type = "silent")),
-            call. = FALSE)
+            call. = FALSE, immediate. = TRUE)
   }
 
   return(invisible(result))
@@ -227,7 +235,7 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
   if (sum(incomplete) > 0) {
     warning(paste0("There were ", sum(incomplete),
                    " incomplete cards found in the given decks. These will not be used."),
-            call. = FALSE)
+            call. = FALSE, immediate. = TRUE)
     result <- result[! incomplete, ]
   }
 
@@ -265,7 +273,8 @@ load_progress <- function(progress, home = NULL, complain = TRUE) {
   # Check file can be found
   if (is.null(progress) || ! file.exists(progress)) {
     if (complain) {
-      warning(paste0('Can not find the users progress file:\n  "', progress, '"'))
+      warning(paste0('Can not find the users progress file:\n  "', progress, '"'),
+              call. = FALSE, immediate. = TRUE)
     }
     result <- matrix(nrow = 0, ncol = length(required_cols))
     colnames(result) <- required_cols
@@ -281,7 +290,7 @@ load_progress <- function(progress, home = NULL, complain = TRUE) {
                    progress, '"\n',
                    'User histories must have the folllowing columns:\n',
                    limited_print(prefix = "  ", required_cols, type = "silent")),
-            call. = FALSE)
+            call. = FALSE, immediate. = TRUE)
   }
 
   return(result)
@@ -375,7 +384,7 @@ present_test <- function(card, deck, tests = test_names()) {
     test_result <- do.call(test_to_try, test_args)
 
     # Check if the test worked
-    if (! is.na(test_result)) {
+    if (length(test_result) != 1 && ! is.na(test_result)) {
       successful_test <- TRUE
     }
   }
@@ -435,7 +444,7 @@ update_progress <- function(changes, progress) {
   # Add new rows to progress for first occurances of cards
   match_index <- match(paste(changes$front_hash, changes$back_hash),
                        paste(progress$front_hash, progress$back_hash))
-  progress <- rbind(progress, changes[is.na(match_index), ])
+  progress <- rbind(progress, changes[is.na(match_index), progress_cols()])
 
   # Update cards practiced in the past
   match_index <- match_index[!is.na(match_index)]
@@ -443,6 +452,20 @@ update_progress <- function(changes, progress) {
   progress[match_index, "wrong"] <- progress[match_index, "wrong"] + changes$wrong
 
   return(progress)
+}
+
+#' Save changes to the user's practice history
+#'
+#' Save changes to the user's practice history
+#'
+#' @param changes A table containing the results of a practice session
+#' @param history_path The path to the users history file
+#'
+#' @keywords internal
+save_history <- function(changes, history_path) {
+  write.table(changes[, history_cols()], file = history_path, row.names = FALSE,
+              col.names = ! file.exists(history_path), sep = "\t", quote = FALSE,
+              append = file.exists(history_path))
 }
 
 
@@ -455,5 +478,6 @@ update_progress <- function(changes, progress) {
 #'
 #' @keywords internal
 save_progress <- function(progress, path) {
-  write.table(progress, file = path, sep = "\t", quote = FALSE)
+  write.table(progress[, progress_cols()], file = path, row.names = FALSE,
+              sep = "\t", quote = FALSE)
 }

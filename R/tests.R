@@ -97,7 +97,7 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
   print(cowplot::plot_grid(answer_plot, options, ncol = 1))
 
   # Get user input
-  if (pick_multiple) {
+  if (pick_multiple && sum(answer_hashes[option_indexes] == answer_hashes[card]) > 1) {
     my_print("Enter the numbers that apply to the card on top, separated by commas:")
     input = ""
     count = 0
@@ -113,7 +113,7 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     my_print("Enter the number that applies to the card on top:")
     input = ""
     count = 0
-    while (! all(input %in% seq_along(test_cards))) {
+    while (length(input) ==0 || ! all(input %in% seq_along(test_cards))) {
       if (count != 0) {
         my_print("Invalid input. Must be one or more numbes between 1 and ", length(test_cards), " separated by commas.")
       }
