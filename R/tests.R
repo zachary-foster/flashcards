@@ -151,6 +151,24 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
                      }
                    })
 
+  # Report result
+  is_right <- answer_hashes[option_indexes[input]] == answer_hashes[card]
+  if (sum(is_right) == 1) {
+    my_print(input[is_right], " is right!")
+  } else if (sum(is_right) == 2) {
+    my_print(paste0(input[is_right], collapse = " and "), " are right!")
+  } else if (sum(is_right) > 2) {
+    my_print(paste0(input[is_right], collapse = ", "), " are right!")
+  }
+
+  if (sum(! is_right) == 1) {
+    my_print(input[! is_right], " is WRONG!")
+  } else if (sum(! is_right) == 2) {
+    my_print(paste0(input[! is_right], collapse = " and "), " are WRONG!")
+  } else if (sum(! is_right) > 2) {
+    my_print(paste0(input[! is_right], collapse = ", "), " are WRONG!")
+  }
+
 
   return(do.call(rbind, output))
 
