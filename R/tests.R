@@ -77,8 +77,8 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
 
   # Pick some choices
   wrong_indexes <- sample.int(nrow(deck))
-  # wrong_indexes <- wrong_indexes[! duplicated(option_side[wrong_indexes])]
-  wrong_indexes <- wrong_indexes[card != wrong_indexes]
+  wrong_indexes <- wrong_indexes[! duplicated(option_side[wrong_indexes])]
+  wrong_indexes <- wrong_indexes[option_side[wrong_indexes] != option_side[card]]
   if (length(wrong_indexes) > max_choices - 1) {
     wrong_indexes <- wrong_indexes[sample.int(max_choices - 1)]
   }
