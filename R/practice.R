@@ -447,9 +447,10 @@ update_progress <- function(changes, progress) {
   progress <- rbind(progress, changes[is.na(match_index), progress_cols()])
 
   # Update cards practiced in the past
-  match_index <- match_index[!is.na(match_index)]
-  progress[match_index, "right"] <- progress[match_index, "right"] + changes$right
-  progress[match_index, "wrong"] <- progress[match_index, "wrong"] + changes$wrong
+  changes <- changes[!is.na(match_index), ]
+  updated_index <- match_index[!is.na(match_index)]
+  progress[updated_index, "right"] <- progress[updated_index, "right"] + changes$right
+  progress[updated_index, "wrong"] <- progress[updated_index, "wrong"] + changes$wrong
 
   return(progress)
 }

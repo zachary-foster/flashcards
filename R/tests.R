@@ -97,16 +97,17 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
   print(cowplot::plot_grid(answer_plot, options, ncol = 1))
 
   # Get user input
-  if (pick_multiple && sum(answer_hashes[option_indexes] == answer_hashes[card]) > 1) {
+  if (pick_multiple) {
     my_print("Enter the numbers that apply to the card on top, separated by commas:")
     input = ""
     count = 0
     while (length(input) == 0 || ! all(input %in% seq_along(test_cards))) {
       if (count != 0) {
+        play_sound("partial.wav")
         my_print("Invalid input. Must be one or more numbes between 1 and ", length(test_cards), " separated by commas.")
 
       }
-      input <- readline()
+      input <- strsplit(readline(), ", *")[[1]]
       count <- count + 1
     }
 
@@ -116,43 +117,49 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     count = 0
     while (length(input) != 1 || ! input %in% seq_along(test_cards)) {
       if (count != 0) {
+        play_sound("partial.wav")
         my_print("Invalid input. Must be a number between 1 and ", length(test_cards), ".")
       }
-      input <- strsplit(readline(), ", *")[[1]]
+      input <- readline()
       count <- count + 1
     }
   }
   input <- as.numeric(input)
 
   # Score test
-  output <- lapply(option_indexes[input],
-                   function(answer_index) {
-                     if (answer_hashes[answer_index] == answer_hashes[card]) { # Right!
-                       return(data.frame(front = deck$front[answer_index],
-                                         back = deck$back[answer_index],
-                                         front_hash = deck$front_hash[answer_index],
-                                         back_hash = deck$back_hash[answer_index],
-                                         right = 1,
-                                         wrong = 0,
-                                         updated = date(),
-                                         deck_name = basename(deck$deck_path[answer_index]),
-                                         test_name = "choice"))
-                     } else { # Wrong!
-                       return(data.frame(front = deck$front[answer_index],
-                                         back = deck$back[answer_index],
-                                         front_hash = deck$front_hash[answer_index],
-                                         back_hash = deck$back_hash[answer_index],
-                                         right = 0,
-                                         wrong = -1,
-                                         updated = date(),
-                                         deck_name = basename(deck$deck_path[answer_index]),
-                                         test_name = "choice"))
-
-
+  answer_indexes <- option_indexes[input]
+  output <- lapply(seq_along(option_indexes),
+                   function(i) {
+                     option_index <- option_indexes[i]
+                     if (answer_hashes[option_index] == answer_hashes[card]) { # Correct answer
+                       if (option_index %in% answer_indexes) { # Right!
+                         right <- 1
+                         wrong <- 0
+                       } else { # Missing answer
+                         right <- 0
+                         wrong <- -0.5
+                       }
+                     } else {
+                       if (option_index %in% answer_indexes) { # Wrong!
+                         right <- 0
+                         wrong <- -1
+                       } else { # Missing wrong answer
+                         right <- 0.05
+                         wrong <- 0
+                       }
                      }
+                     return(data.frame(front = deck$front[option_index],
+                                       back = deck$back[option_index],
+                                       front_hash = deck$front_hash[option_index],
+                                       back_hash = deck$back_hash[option_index],
+                                       right = right,
+                                       wrong = wrong,
+                                       updated = date(),
+                                       deck_name = basename(deck$deck_path[option_index]),
+                                       test_name = "choice"))
                    })
 
-  # Report result
+  # Report right answers
   is_right <- answer_hashes[option_indexes[input]] == answer_hashes[card]
   if (sum(is_right) == 1) {
     my_print(input[is_right], " is right!")
@@ -162,6 +169,7 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     my_print(paste0(input[is_right], collapse = ", "), " are right!")
   }
 
+  # Report wrong answers
   if (sum(! is_right) == 1) {
     my_print(input[! is_right], " is WRONG!")
   } else if (sum(! is_right) == 2) {
@@ -170,8 +178,19 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     my_print(paste0(input[! is_right], collapse = ", "), " are WRONG!")
   }
 
+  # Report missing answers
+  is_missing <- answer_hashes[option_indexes] == answer_hashes[card] & ! seq_along(option_indexes) %in% input
+  missing_indexes <- seq_along(option_indexes)[is_missing]
+  if (length(missing_indexes) == 1) {
+    my_print(missing_indexes, " is a correct answer!")
+  } else if (length(missing_indexes) == 2) {
+    my_print(paste0(missing_indexes, collapse = " and "), " are correct answers!")
+  } else if (length(missing_indexes) > 2) {
+    my_print(paste0(missing_indexes, collapse = ", "), " are correct answers!")
+  }
+
   # Play sound
-  if (all(is_right)) {
+  if (all(is_right) && length(missing_indexes) == 0) {
     play_sound("correct.wav")
   } else if (all(!is_right)) {
     play_sound("wrong.wav")
@@ -179,6 +198,9 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
     play_sound("partial.wav")
   }
 
+  # Wait for user to press enter
+  my_print("Press [enter] to continue.")
+  readline()
 
   return(do.call(rbind, output))
 
