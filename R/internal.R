@@ -79,9 +79,10 @@ limited_print <- function(chars, prefix = "",
 #' The standard print function for this package. This is a wrapper to make
 #' package-wide changes easier.
 #'
-#' @param text Something to print
+#' @param ... Something to print
 #'
 #' @keywords internal
-my_print <- function(text) {
+my_print <- function(...) {
+  text <- paste0(as.character(list(...)), collapse = "")
   message(text)
 }

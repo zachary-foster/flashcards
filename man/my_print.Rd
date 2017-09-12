@@ -4,10 +4,10 @@
 \alias{my_print}
 \title{Print something}
 \usage{
-my_print(text)
+my_print(...)
 }
 \arguments{
-\item{text}{Something to print}
+\item{...}{Something to print}
 }
 \description{
 The standard print function for this package. This is a wrapper to make

@@ -260,7 +260,7 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 #'
 #' @keywords internal
 load_progress <- function(progress, home = NULL, complain = TRUE) {
-  required_cols <- c("front_hash", "back_hash", "right", "wrong", "updated")
+  required_cols <- progress_cols()
 
   # Check file can be found
   if (is.null(progress) || ! file.exists(progress)) {
@@ -390,7 +390,7 @@ present_test <- function(card, deck, tests = test_names()) {
 #'
 #' @keywords internal
 progress_cols <- function() {
-  c("front_hash", "back_hash", "right", "wrong", "updated")
+  c("front", "back", "front_hash", "back_hash", "right", "wrong", "updated")
 }
 
 
@@ -400,7 +400,7 @@ progress_cols <- function() {
 #'
 #' @keywords internal
 history_cols <- function() {
-  c("front_hash", "back_hash", "right", "wrong", "updated", "deck_name", "test_name")
+  c("front", "back", "front_hash", "back_hash", "right", "wrong", "updated", "deck_name", "test_name")
 }
 
 #' Get the path to a project file

@@ -41,7 +41,9 @@ test_review <- function(card, deck) {
   }
 
   # Return results
-  data.frame(front_hash = deck$front_hash[card],
+  data.frame(front = deck$front[card],
+             back = deck$back[card],
+             front_hash = deck$front_hash[card],
              back_hash = deck$back_hash[card],
              right = 0.1,
              wrong = 0,
@@ -65,60 +67,92 @@ test_review <- function(card, deck) {
 #' @keywords internal
 test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
   # Pick side and card to test
-  side_index <- sample.int(2, 1)
-  key_side <- deck[[c("front", "back")[side_index]]]
-  test_side <- deck[[c("front", "back")[- side_index]]]
-  key_card <- key_side[card]
+  sides <- c("front", "back")[sample.int(2)]
+  side_hashes <- paste0(sides[1], "_hash")
+  answer_side <- deck[[sides[1]]]
+  answer_hashes <- deck[[side_hashes[1]]]
+  option_side <- deck[[sides[2]]]
+  option_hashes <- deck[[side_hashes[2]]]
+  answer_card <- answer_side[card]
 
   # Pick some choices
   wrong_indexes <- sample.int(nrow(deck))
-  wrong_indexes <- wrong_indexes[! duplicated(test_side[wrong_indexes])]
+  # wrong_indexes <- wrong_indexes[! duplicated(option_side[wrong_indexes])]
   wrong_indexes <- wrong_indexes[card != wrong_indexes]
   if (length(wrong_indexes) > max_choices - 1) {
     wrong_indexes <- wrong_indexes[sample.int(max_choices - 1)]
   }
-  test_indexes <- c(card, wrong_indexes)
-  test_indexes <- test_indexes[sample.int(length(test_indexes))]
-  test_cards <- test_side[test_indexes]
+  option_indexes <- c(card, wrong_indexes)
+  option_indexes <- option_indexes[sample.int(length(option_indexes))]
+  test_cards <- option_side[option_indexes]
 
   # Present test
-  test_plots <- lapply(test_indexes,
-                       function(i) plot_card_side(test_side[i], deck_path = deck$deck_path[i]))
-  test_selection <- cowplot::plot_grid(plotlist = test_plots,
-                                       labels = seq_along(test_plots),
-                                       label_size = 30,
-                                       label_colour = "#777777")
-  key_plot <- plot_card_side(key_card, deck_path = deck$deck_path[card])
-  print(cowplot::plot_grid(key_plot, test_selection, ncol = 1))
+  option_plots <- lapply(option_indexes,
+                         function(i) plot_card_side(option_side[i], deck_path = deck$deck_path[i]))
+  options <- cowplot::plot_grid(plotlist = option_plots,
+                                labels = seq_along(option_plots),
+                                label_size = 30,
+                                label_colour = "#777777")
+  answer_plot <- plot_card_side(answer_card, deck_path = deck$deck_path[card])
+  print(cowplot::plot_grid(answer_plot, options, ncol = 1))
 
   # Get user input
-  my_print("Enter the number that corresponds to the match:")
-  input = ""
-  count = 0
-  while (! input %in% seq_along(test_cards)) {
-    input <- readline()
-    count <- count + 1
+  if (pick_multiple) {
+    my_print("Enter the numbers that apply to the card on top, separated by commas:")
+    input = ""
+    count = 0
+    while (! input %in% seq_along(test_cards)) {
+      if (count != 0) {
+        my_print("Invalid input. Must be a number between 1 and ", length(test_cards), ".")
+      }
+      input <- readline()
+      count <- count + 1
+    }
+
+  } else {
+    my_print("Enter the number that applies to the card on top:")
+    input = ""
+    count = 0
+    while (! all(input %in% seq_along(test_cards))) {
+      if (count != 0) {
+        my_print("Invalid input. Must be one or more numbes between 1 and ", length(test_cards), " separated by commas.")
+      }
+      input <- strsplit(readline(), ", *")[[1]]
+      count <- count + 1
+    }
   }
+  input <- as.numeric(input)
 
   # Score test
-  if (input == which(card == test_indexes)) { # Right!
-    return(data.frame(front_hash = deck$front_hash[card],
-                      back_hash = deck$back_hash[card],
-                      right = 1,
-                      wrong = 0,
-                      updated = date(),
-                      deck_name = basename(deck$deck_path[card]),
-                      test_name = "choice"))
-  } else { # Wrong!
-    return(data.frame(front_hash = deck$front_hash[c(card, wrong_indexes)],
-                      back_hash = deck$back_hash[c(card, wrong_indexes)],
-                      right = 0,
-                      wrong = c(-1, rep(-0.1, length(wrong_indexes))),
-                      updated = date(),
-                      deck_name = basename(deck$deck_path[c(card, wrong_indexes)]),
-                      test_name = "choice"))
+  output <- lapply(option_indexes[input],
+                   function(answer_index) {
+                     if (answer_hashes[answer_index] == answer_hashes[card]) { # Right!
+                       return(data.frame(front = deck$front[answer_index],
+                                         back = deck$back[answer_index],
+                                         front_hash = deck$front_hash[answer_index],
+                                         back_hash = deck$back_hash[answer_index],
+                                         right = 1,
+                                         wrong = 0,
+                                         updated = date(),
+                                         deck_name = basename(deck$deck_path[answer_index]),
+                                         test_name = "choice"))
+                     } else { # Wrong!
+                       return(data.frame(front = deck$front[answer_index],
+                                         back = deck$back[answer_index],
+                                         front_hash = deck$front_hash[answer_index],
+                                         back_hash = deck$back_hash[answer_index],
+                                         right = 0,
+                                         wrong = -1,
+                                         updated = date(),
+                                         deck_name = basename(deck$deck_path[answer_index]),
+                                         test_name = "choice"))
 
-  }
+
+                     }
+                   })
+
+
+  return(do.call(rbind, output))
 
 }
 
