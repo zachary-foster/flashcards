@@ -65,9 +65,26 @@ plot_progress <- function(home = getwd(), decks = NULL,
   progress_data$card_color <- progress_data$card_color[order(progress_data$score_group, progress_data$total_group)]
 
   # Plot graph
+  plot_height <- 4
+  max_width <- ceiling(max(table(progress_data$deck_path)) / plot_height)
   deck_plots <- lapply(split(progress_data, progress_data$deck_path), function(x) {
     color <- table(as.character(x$card_color))[rev(unique(x$card_color))]
-    waffle::waffle(as.vector(color), colors = names(color), legend_pos = "", title = unique(x$deck_path), rows = 4, size = 2)
+    plot_width <- ceiling(nrow(x) / plot_height)
+    ploy_title <- get_deck_name(unique(x$deck_path))
+    waffle::waffle(as.vector(color), colors = names(color), legend_pos = "", title = ploy_title, rows = plot_height, pad = max_width - plot_width)
   })
   do.call(waffle::iron, deck_plots)
+}
+
+
+
+#' Get deck name
+#'
+#' Get deck name from its path
+#'
+#' @param deck_path The path to the deck folder
+#'
+#' @keywords internal
+get_deck_name <- function(deck_path) {
+  basename(deck_path)
 }
