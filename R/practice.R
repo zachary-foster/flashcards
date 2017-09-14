@@ -54,7 +54,7 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
 
     # Present a test
     test_results <- present_test(card = card, deck = deck_data, tests = tests)
-    dev.off() # clear plot
+    grDevices::dev.off() # clear plot
 
     # Update the progress
     progress_data <- update_progress(changes = test_results, progress = progress_data)
@@ -217,7 +217,7 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 
   # Load and combine the decks used
   deck_tsv_paths <- file.path(decks, "deck.tsv")
-  deck_data <- lapply(deck_tsv_paths, read.table, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
+  deck_data <- lapply(deck_tsv_paths, utils::read.table, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
   deck_data <- deck_data[check_deck_format(deck_data, complain = TRUE)]
   if (length(deck_data) == 0) {
     stop("No valid decks supplied.")
@@ -282,7 +282,7 @@ load_progress <- function(progress, home = NULL, complain = TRUE) {
   }
 
   # Load file
-  result <- read.table(file = progress, header = TRUE, sep = "\t")
+  result <- utils::read.table(file = progress, header = TRUE, sep = "\t")
 
   # Check that the table is formatted correctly
   if (any(! required_cols %in% colnames(result))) {
@@ -322,7 +322,7 @@ pick_card <- function(deck, progress, focus = 0.5) {
 
   # Pick a card
   score <- vapply(seq_len(nrow(deck)), FUN.VALUE = numeric(1), function(i) {
-    rbeta(n = 1, shape1 = deck$right[i] + 1, shape2 = deck$wrong[i] + 1)
+    stats::rbeta(n = 1, shape1 = deck$right[i] + 1, shape2 = deck$wrong[i] + 1)
   })
   score_diff <- abs(score - focus) * deck$difficulty
   result <- which.min(score_diff)
@@ -475,7 +475,7 @@ update_progress <- function(changes, progress) {
 #'
 #' @keywords internal
 save_history <- function(changes, history_path) {
-  write.table(changes[, history_cols()], file = history_path, row.names = FALSE,
+  utils::write.table(changes[, history_cols()], file = history_path, row.names = FALSE,
               col.names = ! file.exists(history_path), sep = "\t", quote = FALSE,
               append = file.exists(history_path))
 }
@@ -490,6 +490,6 @@ save_history <- function(changes, history_path) {
 #'
 #' @keywords internal
 save_progress <- function(progress, path) {
-  write.table(progress[, progress_cols()], file = path, row.names = FALSE,
+  utils::write.table(progress[, progress_cols()], file = path, row.names = FALSE,
               sep = "\t", quote = FALSE)
 }

@@ -27,8 +27,6 @@ other side of the card.}
 
 \item{max_pixels}{The maximum number of pixels an image can be. Larger images
 will be shrunk to this size and saved as a jpeg.}
-
-\item{return}{NULL}
 }
 \description{
 Add cards to a deck

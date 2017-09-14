@@ -35,7 +35,7 @@ test_review <- function(card, deck) {
   input = ""
   count = 0
   while (input != "c") {
-    plot(plot_card_side(c(front, back)[count %% 2 + 1], deck_path = deck_path))
+    graphics::plot(plot_card_side(c(front, back)[count %% 2 + 1], deck_path = deck_path))
     input <- readline()
     count <- count + 1
   }

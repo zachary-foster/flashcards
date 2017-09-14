@@ -15,7 +15,7 @@
 #' @param max_pixels The maximum number of pixels an image can be. Larger images
 #'   will be shrunk to this size and saved as a jpeg.
 #'
-#' @param return NULL
+#' @return NULL
 #'
 #' @export
 add_card <- function(deck_path, front, back, difficulty = 1, source = "",
@@ -53,11 +53,11 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
 
   # Add cards to deck
   tsv_path <- file.path(deck_path, "deck.tsv")
-  deck_data <- read.table(tsv_path, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
+  deck_data <- utils::read.table(tsv_path, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
   new_deck <- rbind(deck_data, output)
 
   # Save deck data
-  write.table(new_deck, file = tsv_path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+  utils::write.table(new_deck, file = tsv_path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
   return(NULL)
 }
