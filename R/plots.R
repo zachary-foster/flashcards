@@ -55,11 +55,11 @@ plot_progress <- function(home = getwd(), decks = NULL,
   # Assign colors to cards
   total_group_size = 5
   progress_data$score_group <- as.numeric(cut(progress_data$score,
-                                breaks = 0:score_color_count / score_color_count,
-                                labels = 1:score_color_count))
+                                              breaks = 0:score_color_count / score_color_count,
+                                              labels = 1:score_color_count))
   progress_data$total_group <- as.numeric(cut(progress_data$total,
-                                breaks = 0:total_color_count * total_group_size,
-                                labels = 1:total_color_count))
+                                              breaks = 0:total_color_count * total_group_size,
+                                              labels = 1:total_color_count))
   progress_data$total_group[is.na(progress_data$total_group)] <- total_color_count
   progress_data$card_color <- vapply(seq_along(progress_data$total_group), function(i) color_key[progress_data$score_group[i], progress_data$total_group[i]], character(1))
   progress_data <- progress_data[order(progress_data$score_group, progress_data$total_group), ]
@@ -70,21 +70,8 @@ plot_progress <- function(home = getwd(), decks = NULL,
   deck_plots <- lapply(split(progress_data, progress_data$deck_path), function(x) {
     color <- table(as.character(x$card_color))[rev(unique(x$card_color))]
     plot_width <- ceiling(nrow(x) / plot_height)
-    ploy_title <- get_deck_name(unique(x$deck_path))
-    waffle::waffle(as.vector(color), colors = names(color), legend_pos = "", title = ploy_title, rows = plot_height, pad = max_width - plot_width)
+    plot_title <- get_deck_info(unique(x$deck_path))$deck_name
+    waffle::waffle(as.vector(color), colors = names(color), legend_pos = "", title = plot_title, rows = plot_height, pad = max_width - plot_width)
   })
   do.call(waffle::iron, deck_plots)
-}
-
-
-
-#' Get deck name
-#'
-#' Get deck name from its path
-#'
-#' @param deck_path The path to the deck folder
-#'
-#' @keywords internal
-get_deck_name <- function(deck_path) {
-  basename(deck_path)
 }

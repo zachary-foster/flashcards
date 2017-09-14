@@ -86,3 +86,26 @@ my_print <- function(...) {
   text <- paste0(as.character(list(...)), collapse = "")
   message(text)
 }
+
+
+#' Read deck info
+#'
+#' Parse the information in a deck information YAML file
+#'
+#' @param path The file path to the deck folder
+#'
+#' @keywords internal
+get_deck_info <- function(path) {
+  info_path <- file.path(path, "info.yml")
+  if (file.exists(info_path)) {
+    data <- yaml::yaml.load_file(info_path)
+  } else {
+    data <- list()
+  }
+  if (! "deck_name" %in% names(data)) {
+    data$deck_name <- Hmisc::capitalize(gsub(pattern = "_",
+                                             replacement = " ",
+                                             basename(path)))
+  }
+  return(data)
+}
