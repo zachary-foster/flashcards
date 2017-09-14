@@ -412,6 +412,17 @@ history_cols <- function() {
   c("front", "back", "front_hash", "back_hash", "right", "wrong", "updated", "deck_name", "test_name")
 }
 
+
+#' Get standard deck columns
+#'
+#' Get standard deck columns
+#'
+#' @keywords internal
+deck_cols <- function() {
+  c("front", "back", "difficulty", "source", "source_url")
+}
+
+
 #' Get the path to a project file
 #'
 #' Get a file that might be a absolute path, in the current working directory, or in the home directory.

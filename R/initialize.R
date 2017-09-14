@@ -34,3 +34,47 @@ init_home_dir <- function(path) {
   template_path <- system.file("templates/template.Rproj", package = "devtools")
   file.copy(template_path, rproj_path)
 }
+
+
+#' Create a deck template
+#'
+#' Create a new empty deck
+#'
+#' @param path The path to new deck folder
+#' @param name The name of the deck in a foramt that looks nice.
+#' @param description The description of the deck. This would typically be a sentance or two.
+#'
+#' @return The path where the deck was created
+#'
+#' @export
+init_deck <- function(path, name = basename(path), description = "") {
+  # internal params
+  deck_file_name <- "deck.tsv"
+  deck_info_name <- "info.yml"
+  deck_settings_name <- "settings.yml"
+  image_dir_name <- "images"
+
+  # Check that the path does not already exist
+  if (file.exists(path)) {
+    stop(paste0('Something already exists at "', path, '".'))
+  }
+
+  # Create folder
+  dir.create(path, recursive = TRUE)
+
+  # Create empty image folder
+  dir.create(file.path(path, image_dir_name), recursive = TRUE)
+
+
+  # Add empty deck.tsv
+  writeLines(paste(deck_cols(), collapse = "\t"), file.path(path, deck_file_name))
+
+  # Add empty settings file
+  file.create(file.path(path, deck_settings_name))
+
+  # Add info file
+  writeChar(yaml::as.yaml(list(name = name, description = description)),
+            file.path(path, deck_info_name), eos = NULL)
+
+  return(path)
+}
