@@ -39,13 +39,13 @@ plot_progress <- function(home = getwd(), decks = NULL,
                                    progress = progress_data)
   progress_data$total <- progress_data$right + abs(progress_data$wrong) + 2
   progress_data$score <- (progress_data$right + 1) / progress_data$total
-  match_index <- match(paste(deck_data$front_hash, deck_data$back_hash),
-                       paste(progress_data$front_hash, progress_data$back_hash))
+  match_index <- match(paste(progress_data$front_hash, progress_data$back_hash),
+                       paste(deck_data$front_hash, deck_data$back_hash))
   progress_data$deck_path <- deck_data$deck_path[match_index]
 
   # Make color scale
-  score_color_count <- 5
-  total_color_count <- 5
+  score_color_count <- 7
+  total_color_count <- 7
   score_color_range <- grDevices::colorRampPalette(c("red", "yellow", "green"))(score_color_count)
   color_key <- do.call(rbind, lapply(score_color_range, function(x) {
     grDevices::colorRampPalette(c("#EEEEEE", x))(total_color_count)
@@ -53,7 +53,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
 
 
   # Assign colors to cards
-  total_group_size = 2
+  total_group_size = 5
   progress_data$score_group <- as.numeric(cut(progress_data$score,
                                 breaks = 0:score_color_count / score_color_count,
                                 labels = 1:score_color_count))
@@ -62,7 +62,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
                                 labels = 1:total_color_count))
   progress_data$total_group[is.na(progress_data$total_group)] <- total_color_count
   progress_data$card_color <- vapply(seq_along(progress_data$total_group), function(i) color_key[progress_data$score_group[i], progress_data$total_group[i]], character(1))
-  progress_data$card_color <- progress_data$card_color[order(progress_data$score_group, progress_data$total_group)]
+  progress_data <- progress_data[order(progress_data$score_group, progress_data$total_group), ]
 
   # Plot graph
   plot_height <- 4
