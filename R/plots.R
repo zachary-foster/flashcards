@@ -37,7 +37,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
   default_deck_data$updated <- ""
   progress_data <- update_progress(changes = default_deck_data,
                                    progress = progress_data)
-  progress_data$total <- progress_data$right + abs(progress_data$wrong) + 2
+  progress_data$total <- progress_data$right + progress_data$wrong + 2
   progress_data$score <- (progress_data$right + 1) / progress_data$total
   match_index <- match(paste(progress_data$front_hash, progress_data$back_hash),
                        paste(deck_data$front_hash, deck_data$back_hash))

@@ -322,9 +322,9 @@ pick_card <- function(deck, progress, focus = 0.5) {
 
   # Pick a card
   score <- vapply(seq_len(nrow(deck)), FUN.VALUE = numeric(1), function(i) {
-    rbeta(n = 1, shape1 = deck$right + 1, shape2 = deck$wrong + 1)
+    rbeta(n = 1, shape1 = deck$right[i] + 1, shape2 = deck$wrong[i] + 1)
   })
-  score_diff <- abs(score - focus)
+  score_diff <- abs(score - focus) * deck$difficulty
   result <- which.min(score_diff)
 
   return(result)

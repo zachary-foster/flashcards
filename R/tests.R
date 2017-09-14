@@ -137,12 +137,12 @@ test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
                          wrong <- 0
                        } else { # Missing answer
                          right <- 0
-                         wrong <- -0.5
+                         wrong <- 0.5
                        }
                      } else {
                        if (option_index %in% answer_indexes) { # Wrong!
                          right <- 0
-                         wrong <- -1
+                         wrong <- 1
                        } else { # Missing wrong answer
                          right <- 0.05
                          wrong <- 0
