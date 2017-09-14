@@ -17,6 +17,9 @@ add_image(img_path, name = basename(img_path), deck_path,
 \item{max_pixels}{The maximum number of pixels an image can be. Larger images
 will be shrunk to this size and saved as a jpeg.}
 }
+\value{
+The path to where the image was saved
+}
 \description{
 Add an image to a deck
 }
