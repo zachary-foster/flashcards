@@ -86,7 +86,7 @@ test_review <- function(card, deck, progress, max_score = 0.5) {
 test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = TRUE) {
   # Pick side and card to test
   sides <- c("front", "back")[sample.int(2)]
-  side_hashes <- paste0(sides[1], "_hash")
+  side_hashes <- paste0(sides, "_hash")
   answer_side <- deck[[sides[1]]]
   answer_hashes <- deck[[side_hashes[1]]]
   option_side <- deck[[sides[2]]]

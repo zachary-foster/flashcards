@@ -23,6 +23,12 @@
 #' @export
 plot_progress <- function(home = getwd(), decks = NULL,
                           progress = "progress.tsv", library = "decks") {
+  # Internal parameters
+  score_color_breaks = c(-.1, .2, .4, .6, .8, 1.1) # The limits of ranges that determine the color of cards
+  score_color_count <- length(score_color_breaks) - 1
+  total_color_breaks <- c(-1, 1, 3, 6, 10, 15, 20, 30, 50, 100) # The limits of ranges that determine the intensity of the color of cards
+  total_color_count <- length(total_color_breaks) - 1
+
   # Load decks
   deck_data <- load_decks(decks = decks, library = library, home = home)
 
@@ -37,30 +43,28 @@ plot_progress <- function(home = getwd(), decks = NULL,
   default_deck_data$updated <- ""
   progress_data <- update_progress(changes = default_deck_data,
                                    progress = progress_data)
-  progress_data$total <- progress_data$right + progress_data$wrong + 2
-  progress_data$score <- (progress_data$right + 1) / progress_data$total
+  progress_data$total <- progress_data$right + progress_data$wrong
+  progress_data$score <- progress_data$right / progress_data$total
+  progress_data$score[is.nan(progress_data$score)] <- 0
   match_index <- match(paste(progress_data$front_hash, progress_data$back_hash),
                        paste(deck_data$front_hash, deck_data$back_hash))
   progress_data$deck_path <- deck_data$deck_path[match_index]
 
   # Make color scale
-  score_color_count <- 7
-  total_color_count <- 7
   score_color_range <- grDevices::colorRampPalette(c("red", "yellow", "green"))(score_color_count)
   color_key <- do.call(rbind, lapply(score_color_range, function(x) {
-    grDevices::colorRampPalette(c("#EEEEEE", x))(total_color_count)
+    grDevices::colorRampPalette(c("#EEEEEE", x))(length(total_color_breaks))
   }))
 
 
   # Assign colors to cards
-  total_group_size = 5
   progress_data$score_group <- as.numeric(cut(progress_data$score,
-                                              breaks = 0:score_color_count / score_color_count,
+                                              breaks = score_color_breaks,
                                               labels = 1:score_color_count))
   progress_data$total_group <- as.numeric(cut(progress_data$total,
-                                              breaks = 0:total_color_count * total_group_size,
+                                              breaks = total_color_breaks,
                                               labels = 1:total_color_count))
-  progress_data$total_group[is.na(progress_data$total_group)] <- total_color_count
+  progress_data$total_group[is.na(progress_data$total_group)] <- length(total_color_breaks)
   progress_data$card_color <- vapply(seq_along(progress_data$total_group), function(i) color_key[progress_data$score_group[i], progress_data$total_group[i]], character(1))
   progress_data <- progress_data[order(progress_data$score_group, progress_data$total_group), ]
 
