@@ -24,13 +24,30 @@ available_tests <- function() {
 #'
 #' @param card The index of the card to use
 #' @param deck The table containing the deck information.
+#' @param progress The progress table for the user
+#' @param max_score Each time this test is selected, a distribution between 1
+#'   and 0 is sampled that simulates a guess at how well the user knows a card.
+#'   0 means does not know and 1 means does know. Cards that get a score higher
+#'   than this option value will not be used for this test and a diffent test
+#'   will be tried.
 #'
 #' @keywords internal
-test_review <- function(card, deck) {
+test_review <- function(card, deck, progress, max_score = 0.5) {
+  # Only allow this test for cards that are not well known
+  is_prog_record <- progress$front_hash == deck$front_hash[card] & progress$back_hash == deck$back_hash[card]
+  if (sum(is_prog_record) == 0) { # If no matches in progress table
+    card_score <- sample_learn_dist(0, 0)
+  } else {
+    card_score <- sample_learn_dist(progress$right[is_prog_record], progress$wrong[is_prog_record])
+  }
+  if (card_score > max_score) {
+    return(NA)
+  }
+
+  # Flip card until user types "c"
   deck_path <- deck$deck_path[card]
   front <- deck$front[card]
   back <- deck$back[card]
-
   my_print("Press [enter] to flip card. Type 'c' to finish.")
   input = ""
   count = 0
@@ -61,11 +78,12 @@ test_review <- function(card, deck) {
 #'
 #' @param card The index of the card to use
 #' @param deck The table containing the deck information.
+#' @param progress The progress table for the user
 #' @param max_choices The maximum number of cards to show.
 #' @param pick_multiple If \code{TRUE}, allow multiple correct answers
 #'
 #' @keywords internal
-test_choose <- function(card, deck, max_choices = 4, pick_multiple = TRUE) {
+test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = TRUE) {
   # Pick side and card to test
   sides <- c("front", "back")[sample.int(2)]
   side_hashes <- paste0(sides[1], "_hash")

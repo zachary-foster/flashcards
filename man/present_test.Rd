@@ -4,7 +4,7 @@
 \alias{present_test}
 \title{Present a test for a card}
 \usage{
-present_test(card, deck, tests = test_names())
+present_test(card, deck, tests = test_names(), progress = NULL)
 }
 \arguments{
 \item{card}{The index of a card in "deck"}
@@ -12,6 +12,8 @@ present_test(card, deck, tests = test_names())
 \item{deck}{The data.frame containing the deck information}
 
 \item{tests}{The name of tests to try to use}
+
+\item{progress}{The progress table for the user}
 }
 \value{
 The changes in scores resulting from the test

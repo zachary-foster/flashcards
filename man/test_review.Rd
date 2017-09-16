@@ -4,12 +4,20 @@
 \alias{test_review}
 \title{Review a card}
 \usage{
-test_review(card, deck)
+test_review(card, deck, progress, max_score = 0.5)
 }
 \arguments{
 \item{card}{The index of the card to use}
 
 \item{deck}{The table containing the deck information.}
+
+\item{progress}{The progress table for the user}
+
+\item{max_score}{Each time this test is selected, a distribution between 1
+and 0 is sampled that simulates a guess at how well the user knows a card.
+0 means does not know and 1 means does know. Cards that get a score higher
+than this option value will not be used for this test and a diffent test
+will be tried.}
 }
 \description{
 Review a card by flipping it over until moving to the next test.

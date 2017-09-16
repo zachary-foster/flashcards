@@ -4,12 +4,14 @@
 \alias{test_choose}
 \title{Multiple choice test}
 \usage{
-test_choose(card, deck, max_choices = 4, pick_multiple = TRUE)
+test_choose(card, deck, progress, max_choices = 4, pick_multiple = TRUE)
 }
 \arguments{
 \item{card}{The index of the card to use}
 
 \item{deck}{The table containing the deck information.}
+
+\item{progress}{The progress table for the user}
 
 \item{max_choices}{The maximum number of cards to show.}
 

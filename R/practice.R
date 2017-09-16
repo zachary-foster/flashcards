@@ -53,7 +53,7 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
     card <- pick_card(deck = deck_data, progress = progress_data, focus = focus)
 
     # Present a test
-    test_results <- present_test(card = card, deck = deck_data, tests = tests)
+    test_results <- present_test(card = card, deck = deck_data, tests = tests, progress = progress_data)
     grDevices::dev.off() # clear plot
 
     # Update the progress
@@ -197,7 +197,6 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
     }
   }
 
-
   # Get deck list
   if (is.null(decks)) {
     decks <- list.dirs(library, recursive = FALSE)
@@ -217,7 +216,7 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 
   # Load and combine the decks used
   deck_tsv_paths <- file.path(decks, "deck.tsv")
-  deck_data <- lapply(deck_tsv_paths, utils::read.table, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
+  deck_data <- lapply(deck_tsv_paths, utils::read.table, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE, quote = "")
   deck_data <- deck_data[check_deck_format(deck_data, complain = TRUE)]
   if (length(deck_data) == 0) {
     stop("No valid decks supplied.")
@@ -232,9 +231,12 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 
   # Remove any incomplete cards
   incomplete <- result$front == "" | result$back == "" | is.na(result$front) | is.na(result$back)
+
   if (sum(incomplete) > 0) {
+    problem_decks <- unique(result$deck_path[incomplete])
     warning(paste0("There were ", sum(incomplete),
-                   " incomplete cards found in the given decks. These will not be used."),
+                   " incomplete cards found in the given decks:\n",
+                   limited_print(basename(problem_decks), type = "silent")),
             call. = FALSE, immediate. = TRUE)
     result <- result[! incomplete, ]
   }
@@ -321,15 +323,32 @@ pick_card <- function(deck, progress, focus = 0.5) {
   }
 
   # Pick a card
-  score <- vapply(seq_len(nrow(deck)), FUN.VALUE = numeric(1), function(i) {
-    stats::rbeta(n = 1, shape1 = deck$right[i] + 1, shape2 = deck$wrong[i] + 1)
-  })
+  score <- sample_learn_dist(deck$right, deck$wrong)
   score_diff <- abs(score - focus) * deck$difficulty
   result <- which.min(score_diff)
 
   return(result)
 }
 
+
+#' Sample the learning distribution
+#'
+#' Uses the number of right and wrong answers and the time of the last practice
+#' to sample from a beta distribution simulating the user's comprehension of the
+#' card.
+#'
+#' @param right The number or right answers/points.
+#' @param wrong The number or wrong answers/points.
+#' @param last_practiced TODO
+#'
+#' @return Integers between 1 and 0 for each input.
+#'
+#' @keywords internal
+sample_learn_dist <- function(right, wrong, last_practiced = NULL) {
+  vapply(seq_len(length(right)), FUN.VALUE = numeric(1), function(i) {
+    stats::rbeta(n = 1, shape1 = right[i] + 1, shape2 = wrong[i] + 1)
+  })
+}
 
 #' Calculate a hash of a card
 #'
@@ -359,11 +378,12 @@ card_hash <- function(content) {
 #' @param card The index of a card in "deck"
 #' @param deck The data.frame containing the deck information
 #' @param tests The name of tests to try to use
+#' @param progress The progress table for the user
 #'
 #' @return The changes in scores resulting from the test
 #'
 #' @keywords internal
-present_test <- function(card, deck, tests = test_names()) {
+present_test <- function(card, deck, tests = test_names(), progress = NULL) {
   deck_path <- deck$deck_path[card]
   # deck_settings <- get_deck_settings(deck_path)
 
@@ -380,7 +400,7 @@ present_test <- function(card, deck, tests = test_names()) {
 
     # Present a test
     # test_args <- c(list("card" = card, "deck" = deck), test_settings)
-    test_args <- list("card" = card, "deck" = deck)
+    test_args <- list("card" = card, "deck" = deck, "progress" = progress)
     test_result <- do.call(test_to_try, test_args)
 
     # Check if the test worked

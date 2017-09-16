@@ -5,7 +5,7 @@
 \title{Add cards to a deck}
 \usage{
 add_card(deck_path, front, back, difficulty = 1, source = "",
-  source_url = "", rename_img = TRUE, max_pixels = 3e+05)
+  source_url = "", rename_img = TRUE, max_pixels = 5e+05)
 }
 \arguments{
 \item{deck_path}{The path to the deck folder}

@@ -19,7 +19,16 @@
 #'
 #' @export
 add_card <- function(deck_path, front, back, difficulty = 1, source = "",
-                     source_url = "", rename_img = TRUE, max_pixels = 300000) {
+                     source_url = "", rename_img = TRUE, max_pixels = 500000) {
+  # If source_url is not specified and the front or back is a url, set source_url
+  if (missing(source_url) && source_url == "") {
+    if (RCurl::url.exists(front)) {
+      source_url <- front
+    } else if (RCurl::url.exists(back)) {
+      source_url <- back
+    }
+  }
+
   # Check if the front or back of the cards are images
   process_if_image <- function(path, other_side) {
     if (is_image_path(path)) {
@@ -37,15 +46,6 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
   }
   front <- process_if_image(front, back)
   back <- process_if_image(back, front)
-
-  # If source_url is not specified and the front or back is a url, set source_url
-  if (missing(source_url) && source_url == "") {
-    if (RCurl::url.exists(front)) {
-      source_url <- front
-    } else if (RCurl::url.exists(back)) {
-      source_url <- back
-    }
-  }
 
   # Create card data row
   output <- data.frame(front = front, back = back, difficulty = difficulty,
@@ -105,7 +105,8 @@ add_image <- function(img_path, name = basename(img_path), deck_path, max_pixels
 
   # Make image destination path unique if not already
   if (file.exists(img_dest_path)) {
-    all_suffixes <- as.numeric(stringr::str_match(list.files(img_dir_path), ".*_([0-9]+)\\..+$")[,2])
+    prefix <- stringr::str_match(basename(img_dest_path), "^(.*)_?[0-9]*\\..+$")[,2]
+    all_suffixes <- as.numeric(stringr::str_match(list.files(img_dir_path), paste0(prefix, "_([0-9]+)\\..+$"))[,2])
     if (all(is.na(all_suffixes))) {
       name_suffix <- 2
     } else {
