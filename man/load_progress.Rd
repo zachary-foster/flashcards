@@ -4,7 +4,8 @@
 \alias{load_progress}
 \title{Load practice progress}
 \usage{
-load_progress(progress, home = NULL, complain = TRUE)
+load_progress(progress, home = NULL, complain = TRUE,
+  restrict_to_deck = NULL)
 }
 \arguments{
 \item{progress}{The file used to store a user's practice progress for one or
@@ -13,6 +14,9 @@ working directory.}
 
 \item{complain}{If \code{TRUE}, issue warnings for any paths that do not
 point to valid decks.}
+
+\item{restrict_to_deck}{If a deck table is supplied, only return progress
+data for that deck}
 }
 \value{
 A \code{data.frame}

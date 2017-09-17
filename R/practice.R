@@ -265,11 +265,14 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 #'   working directory.
 #' @param complain If \code{TRUE}, issue warnings for any paths that do not
 #'   point to valid decks.
+#' @param restrict_to_deck If a deck table is supplied, only return progress
+#'   data for that deck
 #'
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_progress <- function(progress, home = NULL, complain = TRUE) {
+load_progress <- function(progress, home = NULL, complain = TRUE,
+                          restrict_to_deck = NULL) {
   required_cols <- progress_cols()
 
   # Check file can be found
@@ -293,6 +296,11 @@ load_progress <- function(progress, home = NULL, complain = TRUE) {
                    'User histories must have the folllowing columns:\n',
                    limited_print(prefix = "  ", required_cols, type = "silent")),
             call. = FALSE, immediate. = TRUE)
+  }
+
+  # Only return cards in a deck table
+  if (! is.null(restrict_to_deck)) {
+    result <- result[combined_hash(result) %in% combined_hash(restrict_to_deck), ]
   }
 
   return(result)
@@ -496,8 +504,8 @@ update_progress <- function(changes, progress) {
 #' @keywords internal
 save_history <- function(changes, history_path) {
   utils::write.table(changes[, history_cols()], file = history_path, row.names = FALSE,
-              col.names = ! file.exists(history_path), sep = "\t", quote = FALSE,
-              append = file.exists(history_path))
+                     col.names = ! file.exists(history_path), sep = "\t", quote = FALSE,
+                     append = file.exists(history_path))
 }
 
 
@@ -511,5 +519,5 @@ save_history <- function(changes, history_path) {
 #' @keywords internal
 save_progress <- function(progress, path) {
   utils::write.table(progress[, progress_cols()], file = path, row.names = FALSE,
-              sep = "\t", quote = FALSE)
+                     sep = "\t", quote = FALSE)
 }

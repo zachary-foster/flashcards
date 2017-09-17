@@ -19,7 +19,7 @@
 #'
 #' @export
 add_card <- function(deck_path, front, back, difficulty = 1, source = "",
-                     source_url = "", rename_img = TRUE, max_pixels = 500000) {
+                     source_url = "", rename_img = TRUE, max_pixels = 600000) {
   # If source_url is not specified and the front or back is a url, set source_url
   if (missing(source_url) && source_url == "") {
     if (RCurl::url.exists(front)) {
@@ -59,7 +59,7 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
   # Save deck data
   utils::write.table(new_deck, file = tsv_path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
 
-  return(NULL)
+  return(invisible(NULL))
 }
 
 #' Check if a string is a image path

@@ -34,7 +34,8 @@ plot_progress <- function(home = getwd(), decks = NULL,
 
   # Load the progress
   progress <- get_project_file(progress, home = home)
-  progress_data <- load_progress(progress = progress, home = home, complain = TRUE)
+  progress_data <- load_progress(progress = progress, home = home,
+                                 complain = TRUE, restrict_to_deck = deck_data)
 
   # Combine untested cards with progress
   default_deck_data <- deck_data[, c("front", "back", "front_hash", "back_hash")]

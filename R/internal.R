@@ -104,3 +104,17 @@ get_deck_info <- function(path) {
   }
   return(data)
 }
+
+
+#' Get the combined hash for each card in a table
+#'
+#' Get the combined hash for each card in a table
+#'
+#' @param card_data A table with columns "front_hash" and "back_hash"
+#'
+#' @return A character vector of combined hashs
+#'
+#' @keywords internal
+combined_hash <- function(card_data) {
+  paste0(card_data$front_hash, card_data$back_hash)
+}
