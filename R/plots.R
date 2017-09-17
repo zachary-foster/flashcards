@@ -26,7 +26,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
   # Internal parameters
   score_color_breaks = c(-.1, .2, .4, .6, .8, 1.1) # The limits of ranges that determine the color of cards
   score_color_count <- length(score_color_breaks) - 1
-  total_color_breaks <- c(-1, 1, 3, 6, 10, 15, 20, 30, 50, 100) # The limits of ranges that determine the intensity of the color of cards
+  total_color_breaks <- c(-1, 1, 5, 10, 20, 35, 60, 100000000) # The limits of ranges that determine the intensity of the color of cards
   total_color_count <- length(total_color_breaks) - 1
 
   # Load decks
@@ -52,7 +52,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
   progress_data$deck_path <- deck_data$deck_path[match_index]
 
   # Make color scale
-  score_color_range <- grDevices::colorRampPalette(c("red", "yellow", "green"))(score_color_count)
+  score_color_range <- grDevices::colorRampPalette(c("#8e0152", "#4d9221"))(score_color_count)
   color_key <- do.call(rbind, lapply(score_color_range, function(x) {
     grDevices::colorRampPalette(c("#EEEEEE", x))(length(total_color_breaks))
   }))

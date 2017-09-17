@@ -108,11 +108,12 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
   option_plots <- lapply(option_indexes,
                          function(i) plot_card_side(option_side[i], deck_path = deck$deck_path[i]))
   options <- cowplot::plot_grid(plotlist = option_plots,
+                                scale = 0.9,
                                 labels = seq_along(option_plots),
                                 label_size = 30,
                                 label_colour = "#777777")
   answer_plot <- plot_card_side(answer_card, deck_path = deck$deck_path[card])
-  print(cowplot::plot_grid(answer_plot, options, ncol = 1))
+  print(cowplot::plot_grid(answer_plot, options, ncol = 1, rel_heights = c(1, 1.62)))
 
   # Get user input
   if (pick_multiple) {
@@ -178,7 +179,8 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
                    })
 
   # Report right answers
-  is_right <- answer_hashes[option_indexes[input]] == answer_hashes[card]
+  correct_answer_hashes <- answer_hashes[answer_hashes %in% answer_hashes[card]]
+  is_right <- answer_hashes[option_indexes[input]] %in% correct_answer_hashes
   if (sum(is_right) == 1) {
     my_print(input[is_right], " is right!")
   } else if (sum(is_right) == 2) {
@@ -197,7 +199,7 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
   }
 
   # Report missing answers
-  is_missing <- answer_hashes[option_indexes] == answer_hashes[card] & ! seq_along(option_indexes) %in% input
+  is_missing <- answer_hashes[option_indexes] %in% correct_answer_hashes & ! seq_along(option_indexes) %in% input
   missing_indexes <- seq_along(option_indexes)[is_missing]
   if (length(missing_indexes) == 1) {
     my_print(missing_indexes, " is a correct answer!")

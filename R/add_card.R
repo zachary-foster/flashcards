@@ -47,6 +47,12 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
   front <- process_if_image(front, back)
   back <- process_if_image(back, front)
 
+  # Sanitize text input
+  clean_text <- function(text) {
+    text <- gsub(text, pattern = "\\n|\\r", replacement = "")
+    text <- gsub(text, pattern = "\\t", replacement = "  ")
+  }
+
   # Create card data row
   output <- data.frame(front = front, back = back, difficulty = difficulty,
                        source = source, source_url = source_url)
