@@ -23,7 +23,7 @@
 #'   file is used.
 #' @param tests The names of test types to use in this practice session. By
 #'   default, the practice types specified by the decks are used.
-#' @param update_history If \code{TRUE}, update the user's practice history with
+#' @param record If \code{TRUE}, update the user's practice history with
 #'   the results of this practice session.
 #' @param focus A number between 0 amd 1. Low numbers means less well known
 #'   cards will be practiced, whereas higher number means more well known cards
@@ -33,7 +33,7 @@
 #' @export
 practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
                      library = "decks", history = "history.tsv",
-                     tests = test_names(), update_history = TRUE, focus = 0.5,
+                     tests = test_names(), record = TRUE, focus = 0.5,
                      max_tests = 20) {
 
   # Load decks
@@ -54,17 +54,22 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
 
     # Present a test
     test_results <- present_test(card = card, deck = deck_data, tests = tests, progress = progress_data)
-    grDevices::dev.off() # clear plot
 
-    # Update the progress
-    progress_data <- update_progress(changes = test_results, progress = progress_data)
-    all_changes <- rbind(all_changes, test_results)
+    if (record) {
+      # Update the progress
+      progress_data <- update_progress(changes = test_results, progress = progress_data)
+      all_changes <- rbind(all_changes, test_results)
 
-    # Save progress
-    save_progress(progress = progress_data, path = progress)
+      # Save progress
+      save_progress(progress = progress_data, path = progress)
 
-    # Save history
-    save_history(changes = test_results, history_path = history)
+      # Save history
+      save_history(changes = test_results, history_path = history)
+
+      # Print result
+      score <- sum(test_results$right) - sum(test_results$wrong)
+      my_print(ifelse(score > 0, "+", "-"), " ", abs(score), " points")
+    }
 
     # Update count
     cards_tested <- cards_tested + 1
@@ -73,10 +78,21 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
     if (cards_tested >= max_tests) {
       done <- TRUE
     }
+
+    # Wait for user to press enter
+    my_print("Press [enter] to continue.")
+    readline()
+
+    # Clear plot
+    grDevices::dev.off()
   }
 
   # Report results
   my_print("Practice complete!")
+  total <- sum(all_changes$right) - sum(all_changes$wrong)
+  accuracy <- sum(all_changes$right) / (sum(all_changes$right) + sum(all_changes$wrong))
+  my_print("Total score: ", ifelse(total > 0, "+", "-"), " ", abs(total), " points\n",
+           "Accuracy:    ",  as.integer(accuracy * 100), "%")
 }
 
 

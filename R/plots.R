@@ -52,7 +52,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
   progress_data$deck_path <- deck_data$deck_path[match_index]
 
   # Make color scale
-  score_color_range <- grDevices::colorRampPalette(c("#8e0152", "#4d9221"))(score_color_count)
+  score_color_range <- grDevices::colorRampPalette(c("#c51b7d", "#4d9221"))(score_color_count)
   color_key <- do.call(rbind, lapply(score_color_range, function(x) {
     grDevices::colorRampPalette(c("#EEEEEE", x))(length(total_color_breaks))
   }))

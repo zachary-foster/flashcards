@@ -6,7 +6,7 @@
 \usage{
 practice(home = getwd(), decks = NULL, progress = "progress.tsv",
   library = "decks", history = "history.tsv", tests = test_names(),
-  update_history = TRUE, focus = 0.5, max_tests = 20)
+  record = TRUE, focus = 0.5, max_tests = 20)
 }
 \arguments{
 \item{home}{The path to the folder containing the deck library, progress
@@ -36,7 +36,7 @@ file is used.}
 \item{tests}{The names of test types to use in this practice session. By
 default, the practice types specified by the decks are used.}
 
-\item{update_history}{If \code{TRUE}, update the user's practice history with
+\item{record}{If \code{TRUE}, update the user's practice history with
 the results of this practice session.}
 
 \item{focus}{A number between 0 amd 1. Low numbers means less well known

@@ -218,12 +218,7 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
     play_sound("partial.wav")
   }
 
-  # Wait for user to press enter
-  my_print("Press [enter] to continue.")
-  readline()
-
   return(do.call(rbind, output))
-
 }
 
 
