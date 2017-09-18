@@ -26,7 +26,7 @@ plot_progress <- function(home = getwd(), decks = NULL,
   # Internal parameters
   score_color_breaks = c(-.1, .4, .6, .8, .9, 1.1) # The limits of ranges that determines the color of cards
   score_color_count <- length(score_color_breaks) - 1
-  total_color_breaks <- c(-1, 1, 5, 10, 20, 30, 100000000) # The limits of ranges that determines the intensity of the color of cards
+  total_color_breaks <- c(-1, 1, 5, 10, 30, 100000000) # The limits of ranges that determines the intensity of the color of cards
   total_color_count <- length(total_color_breaks) - 1
 
   # Load decks
