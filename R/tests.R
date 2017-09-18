@@ -147,10 +147,11 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
 
   # Score test
   answer_indexes <- option_indexes[input]
+  correct_option_hashes <- option_hashes[answer_hashes == answer_hashes[card]]
   output <- lapply(seq_along(option_indexes),
                    function(i) {
                      option_index <- option_indexes[i]
-                     if (answer_hashes[option_index] == answer_hashes[card]) { # Correct answer
+                     if (option_hashes[option_index] %in% correct_option_hashes) { # Correct option
                        if (option_index %in% answer_indexes) { # Right!
                          right <- 1
                          wrong <- 0
@@ -179,8 +180,7 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
                    })
 
   # Report right answers
-  correct_answer_hashes <- answer_hashes[answer_hashes %in% answer_hashes[card]]
-  is_right <- answer_hashes[option_indexes[input]] %in% correct_answer_hashes
+  is_right <- option_hashes[option_indexes[input]] %in% correct_option_hashes
   if (sum(is_right) == 1) {
     my_print(input[is_right], " is right!")
   } else if (sum(is_right) == 2) {
@@ -199,7 +199,7 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
   }
 
   # Report missing answers
-  is_missing <- answer_hashes[option_indexes] %in% correct_answer_hashes & ! seq_along(option_indexes) %in% input
+  is_missing <- option_hashes[option_indexes] %in% correct_option_hashes & ! seq_along(option_indexes) %in% input
   missing_indexes <- seq_along(option_indexes)[is_missing]
   if (length(missing_indexes) == 1) {
     my_print(missing_indexes, " is a correct answer!")

@@ -34,7 +34,7 @@
 practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
                      library = "decks", history = "history.tsv",
                      tests = test_names(), record = TRUE, focus = 0.5,
-                     max_tests = 20) {
+                     max_tests = 10) {
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library, home = home)
@@ -89,10 +89,12 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
 
   # Report results
   my_print("Practice complete!")
-  total <- sum(all_changes$right) - sum(all_changes$wrong)
-  accuracy <- sum(all_changes$right) / (sum(all_changes$right) + sum(all_changes$wrong))
-  my_print("Total score: ", ifelse(total > 0, "+", "-"), " ", abs(total), " points\n",
-           "Accuracy:    ",  as.integer(accuracy * 100), "%")
+  if (record) {
+    total <- sum(all_changes$right) - sum(all_changes$wrong)
+    accuracy <- sum(all_changes$right) / (sum(all_changes$right) + sum(all_changes$wrong))
+    my_print("Total score: ", ifelse(total >= 0, "+", "-"), " ", abs(total), " points\n",
+             "Accuracy:    ",  as.integer(accuracy * 100), "%")
+  }
 }
 
 
