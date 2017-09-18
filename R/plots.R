@@ -24,9 +24,9 @@
 plot_progress <- function(home = getwd(), decks = NULL,
                           progress = "progress.tsv", library = "decks") {
   # Internal parameters
-  score_color_breaks = c(-.1, .2, .4, .6, .8, 1.1) # The limits of ranges that determine the color of cards
+  score_color_breaks = c(-.1, .4, .6, .8, .9, 1.1) # The limits of ranges that determines the color of cards
   score_color_count <- length(score_color_breaks) - 1
-  total_color_breaks <- c(-1, 1, 5, 10, 20, 35, 60, 100000000) # The limits of ranges that determine the intensity of the color of cards
+  total_color_breaks <- c(-1, 1, 5, 10, 20, 30, 100000000) # The limits of ranges that determines the intensity of the color of cards
   total_color_count <- length(total_color_breaks) - 1
 
   # Load decks
@@ -66,8 +66,9 @@ plot_progress <- function(home = getwd(), decks = NULL,
                                               breaks = total_color_breaks,
                                               labels = 1:total_color_count))
   progress_data$total_group[is.na(progress_data$total_group)] <- length(total_color_breaks)
-  progress_data$card_color <- vapply(seq_along(progress_data$total_group), function(i) color_key[progress_data$score_group[i], progress_data$total_group[i]], character(1))
-  progress_data <- progress_data[order(progress_data$score_group, progress_data$total_group), ]
+  progress_data$card_color <- vapply(seq_along(progress_data$total_group),
+                                     function(i) color_key[progress_data$score_group[i], progress_data$total_group[i]], character(1))
+  progress_data <- progress_data[order(progress_data$total_group, progress_data$score_group), ]
 
   # Plot graph
   plot_height <- 4
