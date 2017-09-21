@@ -48,7 +48,7 @@ test_review <- function(card, deck, progress, max_score = 0.5) {
   deck_path <- deck$deck_path[card]
   front <- deck$front[card]
   back <- deck$back[card]
-  my_print("Press [enter] to flip card. Type 'c' to finish.")
+  my_print("Press [Enter] to flip card. Press [c] to finish.")
   input = ""
   count = 0
   while (input != "c") {

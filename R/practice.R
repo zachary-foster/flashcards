@@ -75,7 +75,7 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
     cards_tested <- cards_tested + 1
 
     # Wait for user to press enter
-    my_print("Press [enter] to continue. Press [q] to stop practice.")
+    my_print("Press [Enter] to continue. Press [q] to stop practice.")
     input <- readline()
     done <- tolower(input) == "q" # Stop practice if TRUE
 
