@@ -71,5 +71,5 @@ Meta
 ----
 
 -   Please [report any issues or
-    bugs](https://github.com/zachary-foster/issues).
+    bugs](https://github.com/zachary-foster/flashcards).
 -   License: GPL-3

@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 .~lock*
+inst/doc
+***.html
