@@ -31,5 +31,5 @@ https://github.com/ropensci/taxa/issues
 
 ## Meta
 
-* Please [report any issues or bugs](https://github.com/zachary-foster/issues).
+* Please [report any issues or bugs](https://github.com/zachary-foster/flashcards).
 * License: GPL-3
