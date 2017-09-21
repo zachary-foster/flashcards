@@ -1,4 +1,35 @@
+---
+output: md_document
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# flashcards
 
 
 [![Travis-CI Build Status](https://travis-ci.org/zachary-foster/flashcards.svg?branch=master)](https://travis-ci.org/zachary-foster/flashcards)
 [![Coverage Status](https://img.shields.io/codecov/c/github/zachary-foster/flashcards/master.svg)](https://codecov.io/github/zachary-foster/flashcards?branch=master)
+
+
+```{r child = 'vignettes/intro_vignette.Rmd'}
+```
+
+## Comments and contributions
+
+We welcome comments, criticisms, and especially contributions!
+GitHub issues are the preferred way to report bugs, ask questions, or request new features.
+You can submit issues here:
+
+https://github.com/ropensci/taxa/issues
+
+## Meta
+
+* Please [report any issues or bugs](https://github.com/zachary-foster/issues).
+* License: GPL-3
