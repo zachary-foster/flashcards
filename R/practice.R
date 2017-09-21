@@ -74,15 +74,15 @@ practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
     # Update count
     cards_tested <- cards_tested + 1
 
-    # Check if the session is done
-    if (cards_tested >= max_tests) {
-      done <- TRUE
-    }
-
     # Wait for user to press enter
     my_print("Press [enter] to continue. Press [q] to stop practice.")
     input <- readline()
     done <- tolower(input) == "q" # Stop practice if TRUE
+
+    # Check if the session is done
+    if (cards_tested >= max_tests) {
+      done <- TRUE
+    }
 
     # Clear plot
     grDevices::dev.off()
