@@ -84,6 +84,9 @@ test_review <- function(card, deck, progress, max_score = 0.5) {
 #'
 #' @keywords internal
 test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = TRUE) {
+  # Internal parameters
+  diff_deck_penalty <- 0.1 # How likly, relative to 1, that a card from a different deck will be chosen as an option
+
   # Pick side and card to test
   sides <- c("front", "back")[sample.int(2)]
   side_hashes <- paste0(sides, "_hash")
@@ -94,7 +97,8 @@ test_choose <- function(card, deck, progress, max_choices = 4, pick_multiple = T
   answer_card <- answer_side[card]
 
   # Pick some choices
-  wrong_indexes <- sample.int(nrow(deck))
+  wrong_indexes <- sample.int(nrow(deck),
+                              prob = ifelse(deck$deck_path[card] == deck$deck_path, 1, diff_deck_penalty))
   wrong_indexes <- wrong_indexes[! duplicated(option_side[wrong_indexes])]
   wrong_indexes <- wrong_indexes[option_side[wrong_indexes] != option_side[card]]
   if (length(wrong_indexes) > max_choices - 1) {
