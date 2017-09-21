@@ -65,11 +65,4 @@ We welcome comments, criticisms, and especially contributions! GitHub
 issues are the preferred way to report bugs, ask questions, or request
 new features. You can submit issues here:
 
-<https://github.com/ropensci/taxa/issues>
-
-Meta
-----
-
--   Please [report any issues or
-    bugs](https://github.com/zachary-foster/flashcards).
--   License: GPL-3
+<https://github.com/zachary-foster/flashcards/issues>
