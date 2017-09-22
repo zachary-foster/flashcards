@@ -4,7 +4,7 @@
 \alias{load_decks}
 \title{Load one or more decks}
 \usage{
-load_decks(decks, library, home, add_hash = TRUE)
+load_decks(decks, library, user_dir, add_hash = TRUE)
 }
 \arguments{
 \item{decks}{The names or folder paths of one or more decks to practice on.

@@ -2,26 +2,26 @@
 #'
 #' Plot the progress on one or more decks for a user's home directory.
 #'
-#' @param home The path to the folder containing the deck library, progress
+#' @param user_dir The path to the folder containing the deck library, progress
 #'   file, and history file. If the folder was created using
-#'   \code{\link{init_home_dir}}, this is the only argument needed. By default,
+#'   \code{\link{init_user_dir}}, this is the only argument needed. By default,
 #'   this is the current working directory.
 #' @param decks The names or folder paths of one or more decks to practice on.
 #'   If "library" is supplied, then these paths are relative to it. By default,
 #'   all decks in "library" are used.
 #' @param library The path to the deck library. This is where the user stores
 #'   their decks and practice history. By default, this is a directory called
-#'   "decks" in the "home" folder.  If "home" is supplied, then this paths is
+#'   "decks" in the user folder.  If "user_dir" is supplied, then this paths is
 #'   relative to it.
 #' @param progress The file used to store a user's progress for one or more
-#'   decks. By default, this is a file called "progress.tsv".  If "home" is
+#'   decks. By default, this is a file called "progress.tsv".  If "user_dir" is
 #'   supplied, then this paths is relative to it. If \code{NULL}, no progress
 #'   file is used.
 #'
 #' @return a ggplot object
 #'
 #' @export
-plot_progress <- function(home = getwd(), decks = NULL,
+plot_progress <- function(user_dir = getwd(), decks = NULL,
                           progress = "progress.tsv", library = "decks") {
   # Internal parameters
   score_color_breaks = c(-.1, .4, .6, .8, .9, 1.1) # The limits of ranges that determines the color of cards
@@ -30,11 +30,11 @@ plot_progress <- function(home = getwd(), decks = NULL,
   total_color_count <- length(total_color_breaks) - 1
 
   # Load decks
-  deck_data <- load_decks(decks = decks, library = library, home = home)
+  deck_data <- load_decks(decks = decks, library = library, user_dir = user_dir)
 
   # Load the progress
-  progress <- get_project_file(progress, home = home)
-  progress_data <- load_progress(progress = progress, home = home,
+  progress <- get_project_file(progress, user_dir = user_dir)
+  progress_data <- load_progress(progress = progress, user_dir = user_dir,
                                  complain = TRUE, restrict_to_deck = deck_data)
 
   # Combine untested cards with progress

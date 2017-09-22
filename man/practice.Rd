@@ -4,14 +4,14 @@
 \alias{practice}
 \title{Start a practice session}
 \usage{
-practice(home = getwd(), decks = NULL, progress = "progress.tsv",
+practice(user_dir = getwd(), decks = NULL, progress = "progress.tsv",
   library = "decks", history = "history.tsv", tests = test_names(),
   record = TRUE, focus = 0.5, max_tests = 10)
 }
 \arguments{
-\item{home}{The path to the folder containing the deck library, progress
+\item{user_dir}{The path to the folder containing the deck library, progress
 file, and history file. If the folder was created using
-\code{\link{init_home_dir}}, this is the only argument needed. By default,
+\code{\link{init_user_dir}}, this is the only argument needed. By default,
 this is the current working directory.}
 
 \item{decks}{The names or folder paths of one or more decks to practice on.
@@ -19,17 +19,17 @@ If "library" is supplied, then these paths are relative to it. By default,
 all decks in "library" are used.}
 
 \item{progress}{The file used to store a user's progress for one or more
-decks. By default, this is a file called "progress.tsv".  If "home" is
+decks. By default, this is a file called "progress.tsv".  If "user_dir" is
 supplied, then this paths is relative to it. If \code{NULL}, no progress
 file is used.}
 
 \item{library}{The path to the deck library. This is where the user stores
 their decks and practice history. By default, this is a directory called
-"decks" in the "home" folder.  If "home" is supplied, then this paths is
+"decks" in the "user_dir" folder.  If "user_dir" is supplied, then this paths is
 relative to it.}
 
 \item{history}{The file used to store a user's practice history for one or
-more decks. By default, this is a file called "history.tsv".  If "home" is
+more decks. By default, this is a file called "history.tsv".  If "user_dir" is
 supplied, then this paths is relative to it. If \code{NULL}, no history
 file is used.}
 

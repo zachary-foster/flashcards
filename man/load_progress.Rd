@@ -4,7 +4,7 @@
 \alias{load_progress}
 \title{Load practice progress}
 \usage{
-load_progress(progress, home = NULL, complain = TRUE,
+load_progress(progress, user_dir = NULL, complain = TRUE,
   restrict_to_deck = NULL)
 }
 \arguments{

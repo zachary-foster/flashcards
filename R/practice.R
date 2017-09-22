@@ -2,23 +2,23 @@
 #'
 #' Start practicing one or more decks.
 #'
-#' @param home The path to the folder containing the deck library, progress
+#' @param user_dir The path to the folder containing the deck library, progress
 #'   file, and history file. If the folder was created using
-#'   \code{\link{init_home_dir}}, this is the only argument needed. By default,
+#'   \code{\link{init_user_dir}}, this is the only argument needed. By default,
 #'   this is the current working directory.
 #' @param decks The names or folder paths of one or more decks to practice on.
 #'   If "library" is supplied, then these paths are relative to it. By default,
 #'   all decks in "library" are used.
 #' @param library The path to the deck library. This is where the user stores
 #'   their decks and practice history. By default, this is a directory called
-#'   "decks" in the "home" folder.  If "home" is supplied, then this paths is
+#'   "decks" in the "user_dir" folder.  If "user_dir" is supplied, then this paths is
 #'   relative to it.
 #' @param progress The file used to store a user's progress for one or more
-#'   decks. By default, this is a file called "progress.tsv".  If "home" is
+#'   decks. By default, this is a file called "progress.tsv".  If "user_dir" is
 #'   supplied, then this paths is relative to it. If \code{NULL}, no progress
 #'   file is used.
 #' @param history The file used to store a user's practice history for one or
-#'   more decks. By default, this is a file called "history.tsv".  If "home" is
+#'   more decks. By default, this is a file called "history.tsv".  If "user_dir" is
 #'   supplied, then this paths is relative to it. If \code{NULL}, no history
 #'   file is used.
 #' @param tests The names of test types to use in this practice session. By
@@ -31,18 +31,18 @@
 #' @param max_tests The number of cards to present.
 #'
 #' @export
-practice <- function(home = getwd(), decks = NULL, progress = "progress.tsv",
+practice <- function(user_dir = getwd(), decks = NULL, progress = "progress.tsv",
                      library = "decks", history = "history.tsv",
                      tests = test_names(), record = TRUE, focus = 0.5,
                      max_tests = 10) {
 
   # Load decks
-  deck_data <- load_decks(decks = decks, library = library, home = home)
+  deck_data <- load_decks(decks = decks, library = library, user_dir = user_dir)
 
   # Load the progress
-  progress <- get_project_file(progress, home = home)
-  history <-  get_project_file(history, home = home)
-  progress_data <- load_progress(progress = progress, home = home, complain = TRUE)
+  progress <- get_project_file(progress, user_dir = user_dir)
+  history <-  get_project_file(history, user_dir = user_dir)
+  progress_data <- load_progress(progress = progress, user_dir = user_dir, complain = TRUE)
 
   # Main loop
   done = FALSE
@@ -187,24 +187,24 @@ check_deck_format <- function(decks, complain = TRUE) {
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_decks <- function(decks, library, home, add_hash = TRUE) {
+load_decks <- function(decks, library, user_dir, add_hash = TRUE) {
   # Check that either decks or library are specified
   if (is.null(decks) && is.null(library)) {
     stop('Either "decks" or "library" must be specified.')
   }
 
-  # Check that home exists and is a directory
-  if (! is.null(home)) {
-    if (! file.exists(home)) {
-      stop(paste0('The users home directory "', home, '" does not exist.'), call. = FALSE)
-    } else if (! file.info(home)$isdir) {
-      stop(paste0('The users home directory "', home, '" must be a folder.'), call. = FALSE)
+  # Check that user_dir exists and is a directory
+  if (! is.null(user_dir)) {
+    if (! file.exists(user_dir)) {
+      stop(paste0('The users home directory "', user_dir, '" does not exist.'), call. = FALSE)
+    } else if (! file.info(user_dir)$isdir) {
+      stop(paste0('The users home directory "', user_dir, '" must be a folder.'), call. = FALSE)
     }
   }
 
-  # Append home to library if supplied
-  if (!is.null(home) && !is.null(library) && !R.utils::isAbsolutePath(library)) {
-    library <- file.path(home, library)
+  # Append user directory to library if supplied
+  if (!is.null(user_dir) && !is.null(library) && !R.utils::isAbsolutePath(library)) {
+    library <- file.path(user_dir, library)
   }
 
   # Check that library exists and is a directory
@@ -290,7 +290,7 @@ load_decks <- function(decks, library, home, add_hash = TRUE) {
 #' @return A \code{data.frame}
 #'
 #' @keywords internal
-load_progress <- function(progress, home = NULL, complain = TRUE,
+load_progress <- function(progress, user_dir = NULL, complain = TRUE,
                           restrict_to_deck = NULL) {
   required_cols <- progress_cols()
 
@@ -472,18 +472,18 @@ deck_cols <- function() {
 
 #' Get the path to a project file
 #'
-#' Get a file that might be a absolute path, in the current working directory, or in the home directory.
+#' Get a file that might be a absolute path, in the current working directory, or in the user directory.
 #'
 #' @param file_path File to find.
-#' @param home The path to the folder containing the deck library, progress
+#' @param user_dir The path to the folder containing the deck library, progress
 #'   file, and history file.
 #'
 #' @return vector
 #' @keywords internal
-get_project_file <- function(file_path, home = home) {
-  # Append home to library if supplied
-  if (!is.null(home) && !is.null(file_path) && !R.utils::isAbsolutePath(file_path)) {
-    file_path <- file.path(home, file_path)
+get_project_file <- function(file_path, user_dir = user_dir) {
+  # Append user directory to library if supplied
+  if (!is.null(user_dir) && !is.null(file_path) && !R.utils::isAbsolutePath(file_path)) {
+    file_path <- file.path(user_dir, file_path)
   }
   return(file_path)
 }

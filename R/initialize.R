@@ -1,6 +1,6 @@
-#' Create a users home directory
+#' Create a user's home directory
 #'
-#' Create a home directory with a deck library, history file, and progress file.
+#' Create a user's home directory with a deck library, history file, and progress file.
 #' A user would generally have a single deck library and add decks to it. This
 #' function creates a new deck library with an example deck to get started.
 #'
@@ -9,7 +9,7 @@
 #' @return NULL
 #'
 #' @export
-init_home_dir <- function(path) {
+init_user_dir <- function(path) {
   # Make directory
   if (file.exists(path)) {
     stop(paste0('A file/folder already exists at "', path, '"'))
@@ -33,6 +33,8 @@ init_home_dir <- function(path) {
   rproj_path <- file.path(path, paste0(basename(path), ".Rproj"))
   template_path <- system.file("templates/template.Rproj", package = "devtools")
   file.copy(template_path, rproj_path)
+
+  return(path)
 }
 
 

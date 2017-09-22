@@ -11,7 +11,7 @@ output:
     %\VignetteEncoding{UTF-8}
 ---
 
-```{r echo=FALSE}
+```{r echo = FALSE}
 knitr::opts_chunk$set(
 comment = "#>",
 collapse = TRUE,
@@ -23,8 +23,8 @@ eval = TRUE
 
 The `flashcards` package provides a way to make and practice digital flashcards in R.
 The "decks" are composed of a simple tsv file, a directory of images (optional), and a YAML configuration file.
-Each user has a "home" folder containing a folder of decks and .tsv files that track progress.
-The functions `init_deck` and `init_home_dir` are provided to initialize empty decks and user "home" folders.
+Each user has a "home" directory containing a directory of decks and .tsv files that track progress.
+The functions `init_deck` and `init_home_dir` are provided to initialize empty decks and user "home" directory.
 There is also functions to practice one or deck (`practice`), add cards to decks (`add_card`), and show progress (`plot_progress`). 
 Cards can also be added by simply editing the deck.tsv files in a spreadsheet editor.
 
@@ -39,22 +39,91 @@ My hope is that this system is adopted by the community and numerous community-m
 Instead of making flashcards individually, we can work together to make extensive, refined decks that will be universally useful.
 Contributions in the forms of new decks, additions to existing decks, and to the package itself are welcome!
 
-## Creating a user folder
+## Creating a user home directory
 
-[UNDER CONSTRUCTION]
+A user directory is where your progress learning cards is recorded and your decks are stored.
+It is possible to use this package without a user directory, but it is easier with one.
+To create a user directory, use the `init_user_dir` function, supplying the path to the folder you want
+to create:
+
+```{r eval = FALSE}
+library(flashcards)
+user_home_path <- tempfile() # replace with a path of your choice if you want
+init_user_dir(user_home_path)
+```
+
+Your new user folder will contain the following files:
+
+* **progress.tsv**: This will contain information on cards from all decks that you have practiced at least once, one row per unique card
+* **history.tsv**: This will contain a record of every card practiced, one row per encounter
+* **<user dir name>.Rproj**: An RStudio project file
+* **decks/**: A directory containing decks of cards
 
 ## Creating a deck
 
-[UNDER CONSTRUCTION]
+Next we need to add a deck so we have somewhere to put cards.
+Lets make a solar system deck, because space is awesome. 
+We can add a deck with the `init_deck` function.
+Including a "name" and "description" is not necessary, but it makes things look nicer later.
+
+```{r eval = FALSE}
+my_deck_path <- file.path(user_home_path, "decks", "solar_system")
+init_deck(my_deck_path, name = "Solar system",
+          description = "Planets in our solar system")
+```
+
+Each deck has the following contents:
+
+* **deck.tsv**: This stores the card data. Only the "front" and "back" columns need to be filled in. Images can be included by entering the name of an image file in the **images** directory.
+* **info.yml**: Stores information on the deck
+* **settings.yml**: Not used yet, but I plan to let each deck have custom settings.
+* **images/**: A directory containing images that can be used in cards.
 
 ## Adding cards
 
-[UNDER CONSTRUCTION]
+Now we can add some cards.
+This can be done by simply filling out cells in a spreadsheet editor that can read and save .tsv files.
+However, at least for images from the internet, it is easier to use the `add_card` function.
+If an URL of an image is supplied, it is downloaded, shrunk to a reasonable size if needed, and named after the other side of the card.
+Lets add a bunch of cards to make things interesting:
+
+```{r eval = FALSE}
+add_card(my_deck_path,front = "Sun", back = "https://upload.wikimedia.org/wikipedia/commons/f/fb/Sun_in_February_%28black_version%29.jpg", source = "HalloweenNight")
+add_card(my_deck_path,front = "Sun", back = "Center of the solar system")
+add_card(my_deck_path,front = "Sun", back = "Hydrogen fuses into helium here")
+add_card(my_deck_path,front = "Mercury", back = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Mercury_in_color_-_Prockter07-edit1.jpg/600px-Mercury_in_color_-_Prockter07-edit1.jpg", source = "NASA/JPL")
+add_card(my_deck_path,front = "Mercury", back = "First planet from the Sun")
+add_card(my_deck_path,front = "Mercury", back = "Smallest planet in the solar system")
+add_card(my_deck_path,front = "Venus", back = "https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg", source = "Ricardo Nunes")
+add_card(my_deck_path,front = "Venus", back = "Second planet from the Sun")
+add_card(my_deck_path,front = "Venus", back = "Rotates in the opposite direction to most other planets")
+add_card(my_deck_path,front = "Earth", back = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/599px-The_Earth_seen_from_Apollo_17.jpg", source = "NASA")
+add_card(my_deck_path,front = "Earth", back = "Third planet from the Sun")
+add_card(my_deck_path,front = "Earth", back = "The only object in the Universe known to harbor life")
+add_card(my_deck_path,front = "Mars", back = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/600px-OSIRIS_Mars_true_color.jpg", source = "ESA")
+add_card(my_deck_path,front = "Mars", back = "Fourth planet from the Sun")
+add_card(my_deck_path,front = "Mars", back = "Reddish iron oxide gives it a reddish appearance")
+```
+
 
 ## Practicing
 
-[UNDER CONSTRUCTION]
+To practice one or more decks, use the `practice` function. 
+By default, all decks will be used and different types of tests will be randomly chosen.
+Currently, there are only two tests: multiple choice and review (which is not really a test).
+
+```{r eval = FALSE}
+practice(user_dir = user_home_path)
+```
+
 
 ## Reviewing progress
 
-[UNDER CONSTRUCTION]
+Once you have practiced a few times, you can see how you are doing with the `plot_progress` function.
+This makes a plot for each deck with a grid of colored squares corresponding to cards.
+The intensity of the color indicates how much experience you have with a card and the hue of the color indicates how often you get the card right in practice.
+
+```{r eval = FALSE}
+plot_progress(user_dir = user_home_path)
+```
+

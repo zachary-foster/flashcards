@@ -4,13 +4,13 @@
 \alias{plot_progress}
 \title{Plot users progress}
 \usage{
-plot_progress(home = getwd(), decks = NULL, progress = "progress.tsv",
+plot_progress(user_dir = getwd(), decks = NULL, progress = "progress.tsv",
   library = "decks")
 }
 \arguments{
-\item{home}{The path to the folder containing the deck library, progress
+\item{user_dir}{The path to the folder containing the deck library, progress
 file, and history file. If the folder was created using
-\code{\link{init_home_dir}}, this is the only argument needed. By default,
+\code{\link{init_user_dir}}, this is the only argument needed. By default,
 this is the current working directory.}
 
 \item{decks}{The names or folder paths of one or more decks to practice on.
@@ -18,13 +18,13 @@ If "library" is supplied, then these paths are relative to it. By default,
 all decks in "library" are used.}
 
 \item{progress}{The file used to store a user's progress for one or more
-decks. By default, this is a file called "progress.tsv".  If "home" is
+decks. By default, this is a file called "progress.tsv".  If "user_dir" is
 supplied, then this paths is relative to it. If \code{NULL}, no progress
 file is used.}
 
 \item{library}{The path to the deck library. This is where the user stores
 their decks and practice history. By default, this is a directory called
-"decks" in the "home" folder.  If "home" is supplied, then this paths is
+"decks" in the user folder.  If "user_dir" is supplied, then this paths is
 relative to it.}
 }
 \value{

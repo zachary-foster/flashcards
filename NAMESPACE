@@ -2,7 +2,7 @@
 
 export(add_card)
 export(init_deck)
-export(init_home_dir)
+export(init_user_dir)
 export(plot_progress)
 export(practice)
 export(test_names)

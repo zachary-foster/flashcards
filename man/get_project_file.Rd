@@ -4,18 +4,18 @@
 \alias{get_project_file}
 \title{Get the path to a project file}
 \usage{
-get_project_file(file_path, home = home)
+get_project_file(file_path, user_dir = user_dir)
 }
 \arguments{
 \item{file_path}{File to find.}
 
-\item{home}{The path to the folder containing the deck library, progress
+\item{user_dir}{The path to the folder containing the deck library, progress
 file, and history file.}
 }
 \value{
 vector
 }
 \description{
-Get a file that might be a absolute path, in the current working directory, or in the home directory.
+Get a file that might be a absolute path, in the current working directory, or in the user directory.
 }
 \keyword{internal}
