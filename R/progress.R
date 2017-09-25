@@ -46,7 +46,9 @@ load_progress <- function(progress, user_dir = NULL, complain = TRUE,
   }
 
   # Update right/wrong scores based on last practice time
-  diff_time <- difftime(lubridate::parse_date_time(date(), "amdHMSy"), lubridate::parse_date_time(result$updated, "amdHMSy"), units = "days")
+  diff_time <- difftime(lubridate::parse_date_time(date(), "amdHMSy"),
+                        lubridate::parse_date_time(result$updated, "amdHMSy"),
+                        units = "days")
   reduction <- (.5^(as.numeric(diff_time)/50) + 1) / (2)
   result$right <- result$right * reduction
   result$wrong <- result$wrong * reduction

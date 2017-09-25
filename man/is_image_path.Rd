@@ -4,7 +4,7 @@
 \alias{is_image_path}
 \title{Check if a string is a image path}
 \usage{
-is_image_path(path)
+is_image_path(path, check_for_url = curl::has_internet(), warn = TRUE)
 }
 \arguments{
 \item{path}{The putative image path}

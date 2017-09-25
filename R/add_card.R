@@ -20,8 +20,11 @@
 #' @export
 add_card <- function(deck_path, front, back, difficulty = 1, source = "",
                      source_url = "", rename_img = TRUE, max_pixels = 600000) {
+  # Check for internet
+  internet <- curl::has_internet()
+
   # If source_url is not specified and the front or back is a url, set source_url
-  if (missing(source_url) && source_url == "") {
+  if (missing(source_url) && source_url == "" && internet) {
     if (RCurl::url.exists(front)) {
       source_url <- front
     } else if (RCurl::url.exists(back)) {
@@ -31,8 +34,8 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
 
   # Check if the front or back of the cards are images
   process_if_image <- function(path, other_side) {
-    if (is_image_path(path)) {
-      if (! is_image_path(other_side) && rename_img) {
+    if (is_image_path(path, check_for_url = internet)) {
+      if (! is_image_path(other_side, check_for_url = internet) && rename_img) {
         img_name <- paste0(other_side, ".jpg")
       } else {
         img_name <- basename(path)
@@ -49,8 +52,9 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
 
   # Sanitize text input
   clean_text <- function(text) {
-    text <- gsub(text, pattern = "\\n|\\r", replacement = "")
-    text <- gsub(text, pattern = "\\t", replacement = "  ")
+    text <- gsub(text, pattern = "\t", replacement = "", fixed = TRUE)
+    text <- gsub(text, pattern = "\r", replacement = "", fixed = TRUE)
+    text <- gsub(text, pattern = "\n", replacement = "", fixed = TRUE)
   }
 
   # Create card data row
@@ -75,9 +79,21 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
 #' @param path The putative image path
 #'
 #' @keywords internal
-is_image_path <- function(path) {
+is_image_path <- function(path, check_for_url = curl::has_internet(), warn = TRUE) {
   image_formats <- c("jpg", "jpeg", "png", "bmp")
-  tolower(tools::file_ext(path)) %in% image_formats && (file.exists(path) || RCurl::url.exists(path))
+  ends_with_image_ext <- tolower(tools::file_ext(path)) %in% image_formats
+  if (check_for_url) {
+    is_image <- ends_with_image_ext && (file.exists(path) || RCurl::url.exists(path))
+  } else {
+    is_image <- ends_with_image_ext && file.exists(path)
+  }
+
+  # Warn if it looks like an image path, but cannot be found
+  if (warn && ends_with_image_ext && ! is_image) {
+    warning(paste0('"', path, '" looks like a path to an image, but it cannot be found. If it is a URL to an image, check your internet connection. If it is a local file, check that it actually exists.'))
+  }
+
+  return(is_image)
 }
 
 
