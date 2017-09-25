@@ -42,7 +42,7 @@ eval = TRUE
 #  add_card(my_deck_path,front = "Uranus", back = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg")
 #  add_card(my_deck_path,front = "Uranus", back = "Seventh planet from the Sun")
 #  add_card(my_deck_path,front = "Uranus", back = "Sideways axis of rotation")
-#  add_card(my_deck_path,front = "Neptune", back = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg")
+#  add_card(my_deck_path,front = "Neptune", back = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Neptune_Full_%28cropped%29.jpg/1024px-Neptune_Full_%28cropped%29.jpg")
 #  add_card(my_deck_path,front = "Neptune", back = "Eighth and farthest known planet from the Sun")
 #  add_card(my_deck_path,front = "Neptune", back = "Coldest planet in the Solar System")
 
