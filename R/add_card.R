@@ -59,15 +59,22 @@ add_card <- function(deck_path, front, back, difficulty = 1, source = "",
 
   # Create card data row
   output <- data.frame(front = front, back = back, difficulty = difficulty,
-                       source = source, source_url = source_url)
+                       source = source, source_url = source_url, stringsAsFactors = FALSE)
 
   # Add cards to deck
   tsv_path <- file.path(deck_path, "deck.tsv")
   deck_data <- utils::read.table(tsv_path, header = TRUE, sep = "\t", fill = TRUE, stringsAsFactors = FALSE)
-  new_deck <- rbind(deck_data, output)
 
-  # Save deck data
-  utils::write.table(new_deck, file = tsv_path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+  # Check that card does not already exist
+  deck_hashes <- paste0(card_hash(deck_data$front), card_hash(deck_data$back))
+  current_hash <- paste0(card_hash(output$front), card_hash(output$back))
+  if (current_hash %in% deck_hashes) {
+    warning("This card is already in the deck. Not adding.")
+  } else {
+    # Save deck data
+    new_deck <- rbind(deck_data, output)
+    utils::write.table(new_deck, file = tsv_path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = TRUE)
+  }
 
   return(invisible(NULL))
 }
