@@ -24,7 +24,8 @@ Imports: beepr,
     png,
     stringr,
     waffle,
-    yaml
+    yaml,
+    lubridate
 Suggests: testthat,
     covr,
     knitr,
