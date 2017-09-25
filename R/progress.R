@@ -45,6 +45,13 @@ load_progress <- function(progress, user_dir = NULL, complain = TRUE,
     result <- result[combined_hash(result) %in% combined_hash(restrict_to_deck), ]
   }
 
+  # Update right/wrong scores based on last practice time
+  diff_time <- difftime(lubridate::parse_date_time(date(), "amdHMSy"), lubridate::parse_date_time(result$updated, "amdHMSy"), units = "days")
+  reduction <- (.5^(as.numeric(diff_time)/50) + 1) / (2)
+  result$right <- result$right * reduction
+  result$wrong <- result$wrong * reduction
+  result$updated <- date()
+
   return(result)
 }
 
