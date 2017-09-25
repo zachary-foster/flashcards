@@ -16,12 +16,9 @@ init_user_dir <- function(path) {
   }
   dir.create(path, recursive = TRUE)
 
-  # Add example deck
-  from_deck_path <- file.path(system.file(package = "flashcards"),
-                            "extdata", "example_decks", "solar_system")
+  # Add deck directory
   to_deck_path <- file.path(path, "decks")
   dir.create(to_deck_path, recursive = TRUE)
-  file.copy(from_deck_path, to_deck_path, recursive = TRUE)
 
   # Add empty progress file
   writeLines(paste(progress_cols(), collapse = "\t"), file.path(path, "progress.tsv"))

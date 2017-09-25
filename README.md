@@ -103,6 +103,18 @@ Lets add a bunch of cards to make things interesting:
     add_card(my_deck_path,front = "Mars", back = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/600px-OSIRIS_Mars_true_color.jpg", source = "ESA")
     add_card(my_deck_path,front = "Mars", back = "Fourth planet from the Sun")
     add_card(my_deck_path,front = "Mars", back = "Reddish iron oxide gives it a reddish appearance")
+    add_card(my_deck_path,front = "Jupiter", back = "https://upload.wikimedia.org/wikipedia/commons/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg")
+    add_card(my_deck_path,front = "Jupiter", back = "Fifth planet from the Sun")
+    add_card(my_deck_path,front = "Jupiter", back = "Mass one-thousandth that of the Sun")
+    add_card(my_deck_path,front = "Saturn", back = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg")
+    add_card(my_deck_path,front = "Saturn", back = "Sixth planet from the Sun")
+    add_card(my_deck_path,front = "Saturn", back = "Second-largest planet in the Solar System")
+    add_card(my_deck_path,front = "Uranus", back = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg")
+    add_card(my_deck_path,front = "Uranus", back = "Seventh planet from the Sun")
+    add_card(my_deck_path,front = "Uranus", back = "Sideways axis of rotation")
+    add_card(my_deck_path,front = "Neptune", back = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Neptune_Full_%28cropped%29.jpg/1024px-Neptune_Full_%28cropped%29.jpg")
+    add_card(my_deck_path,front = "Neptune", back = "Eighth and farthest known planet from the Sun")
+    add_card(my_deck_path,front = "Neptune", back = "Coldest planet in the Solar System")
 
 Practicing
 ----------
