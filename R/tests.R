@@ -14,7 +14,8 @@ test_names <- function() {
 #' @keywords internal
 available_tests <- function() {
   list("review" = test_review,
-       "choose" = test_choose)
+       "choose" = test_choose,
+       "answer" = test_answer)
 }
 
 
@@ -283,3 +284,39 @@ plot_card_side <- function(card, deck_path) {
     return(plot_text(card))
   }
 }
+
+
+
+#' Typing test
+#'
+#' Display one side of a card and ask which matches the other side of another
+#' card shown. The user must type in the other side of the card.
+#'
+#' @param card The index of the card to use
+#' @param deck The table containing the deck information.
+#' @param progress The progress table for the user
+#' @param max_chars The maximum number of characters the answer side of a card
+#'   can have.
+#' @param max_dist The maximum proportion of differences the answer can be to
+#'   the correct answer while still being considered correct.
+#'
+#' @keywords internal
+test_answer <- function(card, deck, progress, max_chars = 20, max_dist = 0.90) {
+  # Check that this test can be used with the card
+
+  # Pick a side to present
+
+  # Present card
+
+  # Get user input
+
+  # Score test
+
+  # Report results
+
+  # Play sound
+
+
+  return(NA)
+}
+
