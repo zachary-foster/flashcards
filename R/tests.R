@@ -301,22 +301,78 @@ plot_card_side <- function(card, deck_path) {
 #'   the correct answer while still being considered correct.
 #'
 #' @keywords internal
-test_answer <- function(card, deck, progress, max_chars = 20, max_dist = 0.90) {
-  # Check that this test can be used with the card
+test_answer <- function(card, deck, progress, max_chars = 20, max_dist = 0.05) {
+
+  is_image <- function(side, deck_path) {
+    file.exists(file.path(deck_path, "images", side))
+  }
+
+  # Get the side(s) of the card that can be used
+  deck_path <- deck$deck_path[card]
+  sides <- c(front = deck$front[card], back = deck$back[card])
+  query_options <- sides[! is_image(sides, deck_path)]
+  query_options <- query_options[nchar(query_options) <= max_chars]
+
+  # Check that one of the sides can be used
+  if (length(options) == 0) {
+    return(NA)
+  }
 
   # Pick a side to present
+  if (length(query_options) == 2) {
+    side_order <- c("front", "back")[sample.int(2)]
+    query <- query_options[sides[2]]
+    answer <- query_options[sides[1]]
+  } else {
+    query <- query_options[1]
+    answer <- sides[! names(sides) %in% names(query_options)]
+  }
 
   # Present card
+  graphics::plot(plot_card_side(query, deck_path = deck_path))
 
   # Get user input
+  my_print("Type the other side of the card:")
+  input = ""
+  count = 0
+  while (length(input) == 0) {
+    if (count != 0) {
+      play_sound("partial.wav")
+      my_print("Invalid input.\nType the other side of the card:")
+    }
+    input <- readline()
+    count <- count + 1
+  }
 
   # Score test
+  answer_dist <- utils::adist(input, answer)[1, 1] / max(nchar(c(input, answer)))
+  if (answer_dist == 0) { # Right!
+    right <- 2
+    wrong <- 0
+    play_sound("correct.wav")
+    my_print("Perfect!")
+  } else if (answer_dist <= max_dist) { # Almost right
+    offset <- min(c(answer_dist * 5, 1))
+    right <- 2 - offset
+    wrong <- offset
+    play_sound("partial.wav")
+    my_print("Almost right. The correct answer is:\n", answer)
+  } else { # Wrong!
+    right <- 0
+    wrong <- 1
+    play_sound("wrong.wav")
+    my_print("Wrong! The correct answer is:\n", answer)
+  }
+  result <- data.frame(front = deck$front[card],
+                       back = deck$back[card],
+                       front_hash = deck$front_hash[card],
+                       back_hash = deck$back_hash[card],
+                       right = right,
+                       wrong = wrong,
+                       updated = date(),
+                       deck_name = basename(deck$deck_path[card]),
+                       test_name = "answer")
 
-  # Report results
-
-  # Play sound
-
-
-  return(NA)
+  return(result)
 }
 

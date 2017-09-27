@@ -25,7 +25,8 @@ Imports: beepr,
     stringr,
     waffle,
     yaml,
-    lubridate
+    lubridate,
+    curl
 Suggests: testthat,
     covr,
     knitr,
