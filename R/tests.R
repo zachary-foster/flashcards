@@ -299,43 +299,51 @@ plot_card_side <- function(card, deck_path) {
 #'   can have.
 #' @param max_dist The maximum proportion of differences the answer can be to
 #'   the correct answer while still being considered correct.
+#' @param ignore_case If \code{FALSE}, capitalization needs to be correct.
 #'
 #' @keywords internal
-test_answer <- function(card, deck, progress, max_chars = 20, max_dist = 0.05) {
+test_answer <- function(card, deck, progress, max_chars = 20, max_dist = 0.2, ignore_case = TRUE) {
 
-  is_image <- function(side, deck_path) {
-    file.exists(file.path(deck_path, "images", side))
+  is_image <- function(side_content) {
+    file.exists(file.path(deck$deck_path[card], "images", side_content))
+  }
+
+  unique_answer <- function(side) {
+    opposite_hash <- list(front = deck$back_hash, back = deck$front_hash)
+    other_hash <- opposite_hash[[side]]
+    sum(other_hash == other_hash[card]) == 1
   }
 
   # Get the side(s) of the card that can be used
-  deck_path <- deck$deck_path[card]
   sides <- c(front = deck$front[card], back = deck$back[card])
-  query_options <- sides[! is_image(sides, deck_path)]
-  query_options <- query_options[nchar(query_options) <= max_chars]
+  answer_options <- sides[! is_image(sides)] # Answer cant be an image
+  answer_options <- answer_options[nchar(answer_options) <= max_chars] # Answer cannot be too long
+  answer_options <- answer_options[vapply(names(answer_options), unique_answer, logical(1))] # Answer must be unique
+
 
   # Check that one of the sides can be used
-  if (length(options) == 0) {
+  if (length(answer_options) == 0) {
     return(NA)
   }
 
   # Pick a side to present
-  if (length(query_options) == 2) {
+  if (length(answer_options) == 2) {
     side_order <- c("front", "back")[sample.int(2)]
-    query <- query_options[sides[2]]
-    answer <- query_options[sides[1]]
+    query <- answer_options[sides[2]]
+    answer <- answer_options[sides[1]]
   } else {
-    query <- query_options[1]
-    answer <- sides[! names(sides) %in% names(query_options)]
+    answer <- answer_options[1]
+    query <- sides[! names(sides) %in% names(answer_options)]
   }
 
   # Present card
-  graphics::plot(plot_card_side(query, deck_path = deck_path))
+  graphics::plot(plot_card_side(query, deck_path = deck$deck_path[card]))
 
   # Get user input
   my_print("Type the other side of the card:")
   input = ""
   count = 0
-  while (length(input) == 0) {
+  while (nchar(input) == 0) {
     if (count != 0) {
       play_sound("partial.wav")
       my_print("Invalid input.\nType the other side of the card:")
@@ -345,16 +353,15 @@ test_answer <- function(card, deck, progress, max_chars = 20, max_dist = 0.05) {
   }
 
   # Score test
-  answer_dist <- utils::adist(input, answer)[1, 1] / max(nchar(c(input, answer)))
+  answer_dist <- utils::adist(tolower(input), tolower(answer), ignore.case = ignore_case)[1, 1] / max(nchar(c(input, answer)))
   if (answer_dist == 0) { # Right!
     right <- 2
     wrong <- 0
     play_sound("correct.wav")
     my_print("Perfect!")
   } else if (answer_dist <= max_dist) { # Almost right
-    offset <- min(c(answer_dist * 5, 1))
-    right <- 2 - offset
-    wrong <- offset
+    right <- 2 * (1 - answer_dist)
+    wrong <- 2 * answer_dist
     play_sound("partial.wav")
     my_print("Almost right. The correct answer is:\n", answer)
   } else { # Wrong!

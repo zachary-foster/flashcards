@@ -121,8 +121,8 @@ Practicing
 
 To practice one or more decks, use the `practice` function. By default,
 all decks will be used and different types of tests will be randomly
-chosen. Currently, there are only two tests: multiple choice and review
-(which is not really a test).
+chosen. Currently, there are three tests: multiple choice, type the
+answer, and review (which is not really a test).
 
     practice(user_dir = user_home_path)
 

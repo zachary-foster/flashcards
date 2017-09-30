@@ -4,7 +4,8 @@
 \alias{test_answer}
 \title{Typing test}
 \usage{
-test_answer(card, deck, progress, max_chars = 20, max_dist = 0.05)
+test_answer(card, deck, progress, max_chars = 20, max_dist = 0.2,
+  ignore_case = TRUE)
 }
 \arguments{
 \item{card}{The index of the card to use}
@@ -18,6 +19,8 @@ can have.}
 
 \item{max_dist}{The maximum proportion of differences the answer can be to
 the correct answer while still being considered correct.}
+
+\item{ignore_case}{If \code{FALSE}, capitalization needs to be correct.}
 }
 \description{
 Display one side of a card and ask which matches the other side of another

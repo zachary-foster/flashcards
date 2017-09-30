@@ -68,7 +68,7 @@ practice <- function(user_dir = getwd(), decks = NULL, progress = "progress.tsv"
 
       # Print result
       score <- sum(test_results$right) - sum(test_results$wrong)
-      my_print(ifelse(score > 0, "+", "-"), " ", abs(score), " points")
+      my_print(ifelse(score > 0, "+", "-"), " ", round(abs(score), digits = 2), " points")
     }
 
     # Update count
@@ -93,7 +93,7 @@ practice <- function(user_dir = getwd(), decks = NULL, progress = "progress.tsv"
   if (record) {
     total <- sum(all_changes$right) - sum(all_changes$wrong)
     accuracy <- sum(all_changes$right) / (sum(all_changes$right) + sum(all_changes$wrong))
-    my_print("Total score: ", ifelse(total >= 0, "+", "-"), " ", abs(total), " points\n",
+    my_print("Total score: ", ifelse(total >= 0, "+", "-"), " ", round(abs(total), digits = 2), " points\n",
              "Accuracy:    ",  as.integer(accuracy * 100), "%")
   }
 }
