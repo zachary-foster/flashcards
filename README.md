@@ -44,7 +44,7 @@ Once the package is on CRAN you will be able to install it like so:
 
 Until then, you can install it with `devtools`:
 
-    devtools::install_github("zacharyfoster/flashcards")
+    devtools::install_github("zachary-foster/flashcards")
 
 Creating a user home directory
 ------------------------------

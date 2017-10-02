@@ -8,6 +8,12 @@ eval = TRUE
 )
 
 ## ----eval = FALSE--------------------------------------------------------
+#  install.packages("flashcards")
+
+## ----eval = FALSE--------------------------------------------------------
+#  devtools::install_github("zachary-foster/flashcards")
+
+## ----eval = FALSE--------------------------------------------------------
 #  library(flashcards)
 #  user_home_path <- tempfile() # replace with a path of your choice if you want
 #  init_user_dir(user_home_path)
