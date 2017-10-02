@@ -118,3 +118,41 @@ get_deck_info <- function(path) {
 combined_hash <- function(card_data) {
   paste0(card_data$front_hash, card_data$back_hash)
 }
+
+
+#' Check for urls
+#'
+#' Check if a vector contains urls
+#'
+#' @param text The vector to test
+#' @param test If \code{TRUE}, check that the url exists. This might take a second.
+#'
+is_url <- function(text, test = FALSE) {
+  if (test) {
+    return(grepl(text, pattern = "^(http|https)://") && RCurl::url.exists(text))
+  } else {
+    return(grepl(text, pattern = "^(http|https)://"))
+  }
+}
+
+
+#' Check if a string is a image path
+#'
+#' Check if a string is a local or remote image path
+#'
+#' @param path The putative image path
+#' @param test If \code{TRUE}, check that urls exists. This might take a second.
+#'
+#' @keywords internal
+is_image_path <- function(path, test_url = curl::has_internet(), warn = TRUE) {
+  image_formats <- c("jpg", "jpeg", "png", "bmp")
+  ends_with_image_ext <- tolower(tools::file_ext(path)) %in% image_formats
+  is_image <- ends_with_image_ext && (file.exists(path) || is_url(path, test = test_url))
+
+  # Warn if it looks like an image path, but cannot be found
+  if (warn && ends_with_image_ext && ! is_image) {
+    warning(paste0('"', path, '" looks like a path to an image, but it cannot be found. If it is a URL to an image, check your internet connection. If it is a local file, check that it actually exists.'))
+  }
+
+  return(is_image)
+}

@@ -28,6 +28,7 @@ plot_progress <- function(user_dir = getwd(), decks = NULL,
   score_color_count <- length(score_color_breaks) - 1
   total_color_breaks <- c(-1, 1, 5, 10, 30, 100000000) # The limits of ranges that determines the intensity of the color of cards
   total_color_count <- length(total_color_breaks) - 1
+  plot_height <- 5
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library, user_dir = user_dir)
@@ -71,7 +72,6 @@ plot_progress <- function(user_dir = getwd(), decks = NULL,
   progress_data <- progress_data[order(progress_data$total_group, progress_data$score_group), ]
 
   # Plot graph
-  plot_height <- 4
   max_width <- ceiling(max(table(progress_data$deck_path)) / plot_height)
   deck_plots <- lapply(split(progress_data, progress_data$deck_path), function(x) {
     color <- table(as.character(x$card_color))[rev(unique(x$card_color))]
