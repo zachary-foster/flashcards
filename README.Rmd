@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
 [![Travis-CI Build Status](https://travis-ci.org/zachary-foster/flashcards.svg?branch=master)](https://travis-ci.org/zachary-foster/flashcards)
 [![Coverage Status](https://img.shields.io/codecov/c/github/zachary-foster/flashcards/master.svg)](https://codecov.io/github/zachary-foster/flashcards?branch=master)
 
+![](ignored/example_screenshot.png)
+
 
 ```{r child = 'vignettes/intro_vignette.Rmd'}
 ```

@@ -6,6 +6,8 @@ Status](https://travis-ci.org/zachary-foster/flashcards.svg?branch=master)](http
 [![Coverage
 Status](https://img.shields.io/codecov/c/github/zachary-foster/flashcards/master.svg)](https://codecov.io/github/zachary-foster/flashcards?branch=master)
 
+![](ignored/example_screenshot.png)
+
 The `flashcards` package provides a way to make and practice digital
 flashcards in R. The "decks" are composed of a simple tsv file, a
 directory of images (optional), and a YAML configuration file. Each user
@@ -32,6 +34,17 @@ Instead of making flashcards individually, we can work together to make
 extensive, refined decks that will be universally useful. Contributions
 in the forms of new decks, additions to existing decks, and to the
 package itself are welcome!
+
+Installing the package
+----------------------
+
+Once the package is on CRAN you will be able to install it like so:
+
+    install.packages("flashcards")
+
+Until then, you can install it with `devtools`:
+
+    devtools::install_github("zacharyfoster/flashcards")
 
 Creating a user home directory
 ------------------------------

@@ -39,6 +39,21 @@ My hope is that this system is adopted by the community and numerous community-m
 Instead of making flashcards individually, we can work together to make extensive, refined decks that will be universally useful.
 Contributions in the forms of new decks, additions to existing decks, and to the package itself are welcome!
 
+## Installing the package
+
+Once the package is on CRAN you will be able to install it like so:
+
+```{r eval = FALSE}
+install.packages("flashcards")
+```
+
+Until then, you can install it with `devtools`:
+
+```{r eval = FALSE}
+devtools::install_github("zacharyfoster/flashcards")
+```
+
+
 ## Creating a user home directory
 
 A user directory is where your progress learning cards is recorded and your decks are stored.
