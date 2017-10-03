@@ -5,7 +5,7 @@
 \title{Plot users progress}
 \usage{
 plot_progress(user_dir = getwd(), decks = NULL, progress = "progress.tsv",
-  library = "decks")
+  library = "decks", min_cards = 10)
 }
 \arguments{
 \item{user_dir}{The path to the folder containing the deck library, progress
@@ -26,6 +26,9 @@ file is used.}
 their decks and practice history. By default, this is a directory called
 "decks" in the user folder.  If "user_dir" is supplied, then this paths is
 relative to it.}
+
+\item{min_cards}{Decks with fewer cards than this will be compressed into a
+single deck.}
 }
 \value{
 a ggplot object

@@ -145,7 +145,7 @@ is_url <- function(text, test = FALSE) {
 #'
 #' @keywords internal
 is_image_path <- function(path, test_url = curl::has_internet(), warn = TRUE) {
-  image_formats <- c("jpg", "jpeg", "png", "bmp")
+  image_formats <- c("jpg", "jpeg", "png", "bmp", "svg")
   ends_with_image_ext <- tolower(tools::file_ext(path)) %in% image_formats
   is_image <- ends_with_image_ext && (file.exists(path) || is_url(path, test = test_url))
 
@@ -156,3 +156,53 @@ is_image_path <- function(path, test_url = curl::has_internet(), warn = TRUE) {
 
   return(is_image)
 }
+
+
+#' Get a decks name
+#'
+#' Get a decks name from its path
+#'
+#' @param path One or more paths to decks
+#'
+#' @return character
+get_deck_name <- function(path) {
+  process <- function(path) {
+    get_one <- function(a_path) {
+      info <- get_deck_info(a_path)
+      if (! "deck_name" %in% names(info)) {
+        warning(paste0("No name information in deck: ", a_path))
+        return("")
+      } else {
+        return(info$deck_name)
+      }
+    }
+    vapply(path, get_one, character(1))
+  }
+
+ unlist(map_unique(path, process))
+}
+
+
+#' Run a function on unique values of a iterable
+#'
+#' @param input What to pass to \code{func}
+#' @param func (\code{function})
+#' @param ... passend to \code{func}
+#'
+#' @keywords internal
+map_unique <- function(input, func, ...) {
+  input_class <- class(input)
+  unique_input <- unique(input)
+  class(unique_input) <- input_class
+  func(unique_input, ...)[unique_mapping(input)]
+}
+
+
+#' get indexes of a unique set of the input
+#'
+#' @keywords internal
+unique_mapping <- function(input) {
+  unique_input <- unique(input)
+  vapply(input, function(x) {if (is.na(x)) which(is.na(unique_input)) else which(x == unique_input)}, numeric(1))
+}
+

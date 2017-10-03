@@ -17,18 +17,21 @@
 #'   decks. By default, this is a file called "progress.tsv".  If "user_dir" is
 #'   supplied, then this paths is relative to it. If \code{NULL}, no progress
 #'   file is used.
+#' @param min_cards Decks with fewer cards than this will be compressed into a
+#'   single deck.
 #'
 #' @return a ggplot object
 #'
 #' @export
 plot_progress <- function(user_dir = getwd(), decks = NULL,
-                          progress = "progress.tsv", library = "decks") {
+                          progress = "progress.tsv", library = "decks",
+                          min_cards = 10) {
   # Internal parameters
   score_color_breaks = c(-.1, .4, .6, .8, .9, 1.1) # The limits of ranges that determines the color of cards
   score_color_count <- length(score_color_breaks) - 1
   total_color_breaks <- c(-1, 1, 5, 10, 30, 100000000) # The limits of ranges that determines the intensity of the color of cards
   total_color_count <- length(total_color_breaks) - 1
-  plot_height <- 5
+  max_width <- 50
 
   # Load decks
   deck_data <- load_decks(decks = decks, library = library, user_dir = user_dir)
@@ -58,7 +61,6 @@ plot_progress <- function(user_dir = getwd(), decks = NULL,
     grDevices::colorRampPalette(c("#EEEEEE", x))(length(total_color_breaks))
   }))
 
-
   # Assign colors to cards
   progress_data$score_group <- as.numeric(cut(progress_data$score,
                                               breaks = score_color_breaks,
@@ -71,13 +73,25 @@ plot_progress <- function(user_dir = getwd(), decks = NULL,
                                      function(i) color_key[progress_data$score_group[i], progress_data$total_group[i]], character(1))
   progress_data <- progress_data[order(progress_data$total_group, progress_data$score_group), ]
 
+  # Add deck name to card info
+  progress_data$deck_name <- get_deck_name(progress_data$deck_path)
+
+  # Combine minor decks
+  is_small <- table(progress_data$deck_name) < min_cards
+  progress_data$deck_name[is_small[progress_data$deck_name]] <- "Small decks"
+
   # Plot graph
-  max_width <- ceiling(max(table(progress_data$deck_path)) / plot_height)
-  deck_plots <- lapply(split(progress_data, progress_data$deck_path), function(x) {
+  deck_plots <- lapply(split(progress_data, progress_data$deck_name), function(x) {
     color <- table(as.character(x$card_color))[rev(unique(x$card_color))]
+    plot_height <- ceiling(nrow(x) / max_width)
     plot_width <- ceiling(nrow(x) / plot_height)
-    plot_title <- get_deck_info(unique(x$deck_path))$deck_name
-    waffle::waffle(as.vector(color), colors = names(color), legend_pos = "", title = plot_title, rows = plot_height, pad = max_width - plot_width)
+    plot_title <- x$deck_name[1]
+    waffle::waffle(as.vector(color),
+                   colors = names(color),
+                   legend_pos = "",
+                   title = plot_title,
+                   rows = plot_height,
+                   pad = max_width - plot_width)
   })
   do.call(waffle::iron, deck_plots)
 }
