@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 ```{r child = 'vignettes/intro_vignette.Rmd'}
 ```
-z
+
 ## Comments and contributions
 
 We welcome comments, criticisms, and especially contributions!

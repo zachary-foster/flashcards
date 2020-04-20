@@ -150,7 +150,8 @@ the color indicates how often you get the card right in practice.
 
     plot_progress(user_dir = user_home_path)
 
-z \#\# Comments and contributions
+Comments and contributions
+--------------------------
 
 We welcome comments, criticisms, and especially contributions! GitHub
 issues are the preferred way to report bugs, ask questions, or request
