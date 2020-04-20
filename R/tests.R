@@ -260,8 +260,8 @@ plot_image <- function(path) {
 #'
 #' @keywords internal
 plot_text <- function(text) {
-  ggplot2::ggplot(data = data.frame(label = text)) +
-    ggfittext::geom_fit_text(label = text, xmin = 0, xmax = 1, ymin = 0, ymax = 1, grow = TRUE, reflow = TRUE) +
+  ggplot2::ggplot(data = data.frame(label = text, xmin = 0, xmax = 1, ymin = 0, ymax = 1)) +
+    ggfittext::geom_fit_text(ggplot2::aes(label = label, xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), grow = TRUE, reflow = TRUE) +
     ggplot2::xlim(0, 1) +
     ggplot2::ylim(0, 1) +
     ggplot2::theme_void()
